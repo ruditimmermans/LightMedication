@@ -1,0 +1,22 @@
+<resources>
+    <string name="screen_title">Medicatieherinnering</string>
+    <string name="medication_name_label">Medicijnnaam</string>
+    <string name="pill_count_label">Hoeveel pillen?</string>
+    <string name="set_time_button">Tijd instellen: %1$02d:%2$02d</string>
+    <string name="schedule_button">Dagelijkse herinnering plannen</string>
+    <string name="permission_denied">Meldingsmachtiging geweigerd</string>
+    <string name="reminder_set_toast">Herinnering ingesteld voor %1$s %2$s om %3$s</string>
+    <string name="exact_alarm_permission_toast">Sta exacte alarmen toe in de instellingen</string>
+    <string name="input_error_toast">Voer de medicijnnaam en hoeveelheid in</string>
+    <string name="notification_title">Tijd voor je medicatie!</string>
+    <string name="notification_content">Neem nu %1$s %2$s</string>
+    <string name="channel_name">Medicatieherinneringen</string>
+    <string name="about_button">Over</string>
+    <string name="about_title">Over Light Medicatie</string>
+    <string name="back_button">Terug</string>
+    <string name="add_reminder_title">Herinnering toevoegen</string>
+    <string name="reminders_list_title">Je herinneringen</string>
+    <string name="no_reminders">Geen herinneringen gepland</string>
+    <string name="delete_button">Verwijderen</string>
+    <string name="cancel_button">Annuleren</string>
+</resources>

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name" translatable="false">Light Medication</string>
+    <string name="screen_title">Medication Reminder</string>
+    <string name="medication_name_label">Medication Name</string>
+    <string name="pill_count_label">How many pills?</string>
+    <string name="set_time_button">Set Time: %1$02d:%2$02d</string>
+    <string name="schedule_button">Schedule Daily Reminder</string>
+    <string name="permission_denied">Notification permission denied</string>
+    <string name="reminder_set_toast">Reminder set for %1$s %2$s at %3$s</string>
+    <string name="exact_alarm_permission_toast">Please allow exact alarms in settings</string>
+    <string name="input_error_toast">Please enter medication name and quantity</string>
+    <string name="notification_title">Time for your medication!</string>
+    <string name="notification_content">Take %1$s %2$s now</string>
+    <string name="channel_name">Medication Reminders</string>
+    <string name="about_button">About</string>
+    <string name="about_title">About Light Medication</string>
+    <string name="about_description" translatable="false">A simple, privacy-focused medication reminder app designed for ease of use and high visibility.</string>
+    <string name="about_version" translatable="false">Version 1.0 Copyright Ⓒ 2026 by R. Timmermans</string>
+    <string name="back_button">Back</string>
+    <string name="add_reminder_title">Add Reminder</string>
+    <string name="reminders_list_title">Your Reminders</string>
+    <string name="no_reminders">No reminders scheduled</string>
+    <string name="delete_button">Delete</string>
+    <string name="cancel_button">Cancel</string>
+</resources>
