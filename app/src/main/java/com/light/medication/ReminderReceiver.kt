@@ -27,13 +27,14 @@ class ReminderReceiver : BroadcastReceiver() {
         val pillCount = intent.getStringExtra("PILL_COUNT") ?: "1"
         val hour = intent.getIntExtra("HOUR", 8)
         val minute = intent.getIntExtra("MINUTE", 0)
+        val frequency = intent.getStringExtra("FREQUENCY") ?: "Daily"
 
         showNotification(context, medicationName, pillCount, id)
         
-        // Reschedule for tomorrow
+        // Reschedule based on frequency
         val scheduler = ReminderScheduler(context)
-        scheduler.scheduleDailyReminder(
-            Reminder(id = id, medicationName = medicationName, pillCount = pillCount, hour = hour, minute = minute)
+        scheduler.scheduleReminder(
+            Reminder(id = id, medicationName = medicationName, pillCount = pillCount, hour = hour, minute = minute, frequency = frequency)
         )
     }
 
@@ -45,7 +46,7 @@ class ReminderReceiver : BroadcastReceiver() {
             try {
                 val reminders = db.reminderDao().getAllReminders().first()
                 reminders.filter { it.isEnabled }.forEach { reminder ->
-                    scheduler.scheduleDailyReminder(reminder)
+                    scheduler.scheduleReminder(reminder)
                 }
             } finally {
                 pendingResult.finish()

@@ -10,13 +10,14 @@ import java.util.Calendar
 class ReminderScheduler(private val context: Context) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    fun scheduleDailyReminder(reminder: Reminder) {
+    fun scheduleReminder(reminder: Reminder) {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("REMINDER_ID", reminder.id)
             putExtra("MEDICATION_NAME", reminder.medicationName)
             putExtra("PILL_COUNT", reminder.pillCount)
             putExtra("HOUR", reminder.hour)
             putExtra("MINUTE", reminder.minute)
+            putExtra("FREQUENCY", reminder.frequency)
         }
         
         val pendingIntent = PendingIntent.getBroadcast(
@@ -32,7 +33,12 @@ class ReminderScheduler(private val context: Context) {
             set(Calendar.SECOND, 0)
             
             if (timeInMillis <= System.currentTimeMillis()) {
-                add(Calendar.DAY_OF_YEAR, 1)
+                when (reminder.frequency) {
+                    "Daily" -> add(Calendar.DAY_OF_YEAR, 1)
+                    "Weekly" -> add(Calendar.WEEK_OF_YEAR, 1)
+                    "Monthly" -> add(Calendar.MONTH, 1)
+                    else -> add(Calendar.DAY_OF_YEAR, 1)
+                }
             }
         }
 

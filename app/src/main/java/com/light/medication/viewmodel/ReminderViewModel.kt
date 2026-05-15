@@ -22,17 +22,18 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
             initialValue = emptyList()
         )
 
-    fun addReminder(medicationName: String, pillCount: String, hour: Int, minute: Int) {
+    fun addReminder(medicationName: String, pillCount: String, hour: Int, minute: Int, frequency: String) {
         viewModelScope.launch {
             val reminder = Reminder(
                 medicationName = medicationName,
                 pillCount = pillCount,
                 hour = hour,
-                minute = minute
+                minute = minute,
+                frequency = frequency
             )
             val id = reminderDao.insert(reminder)
             // Schedule the alarm using the ID to avoid collisions
-            scheduler.scheduleDailyReminder(reminder.copy(id = id.toInt()))
+            scheduler.scheduleReminder(reminder.copy(id = id.toInt()))
         }
     }
 
@@ -48,24 +49,25 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
             val updated = reminder.copy(isEnabled = !reminder.isEnabled)
             reminderDao.update(updated)
             if (updated.isEnabled) {
-                scheduler.scheduleDailyReminder(updated)
+                scheduler.scheduleReminder(updated)
             } else {
                 scheduler.cancelReminder(updated)
             }
         }
     }
 
-    fun updateReminder(reminder: Reminder, medicationName: String, pillCount: String, hour: Int, minute: Int) {
+    fun updateReminder(reminder: Reminder, medicationName: String, pillCount: String, hour: Int, minute: Int, frequency: String) {
         viewModelScope.launch {
             val updated = reminder.copy(
                 medicationName = medicationName,
                 pillCount = pillCount,
                 hour = hour,
-                minute = minute
+                minute = minute,
+                frequency = frequency
             )
             reminderDao.update(updated)
             if (updated.isEnabled) {
-                scheduler.scheduleDailyReminder(updated)
+                scheduler.scheduleReminder(updated)
             }
         }
     }

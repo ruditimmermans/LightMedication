@@ -30,6 +30,10 @@
     <string name="battery_optimization_title">Batterijoptimalisatie</string>
     <string name="battery_optimization_message">Voor betrouwbare herinneringen schakelt u batterijoptimalisatie uit voor deze app.</string>
     <string name="disable_optimization_button">Optimalisatie uitschakelen</string>
+    <string name="frequency_label">Frequentie</string>
+    <string name="frequency_daily">Dagelijks</string>
+    <string name="frequency_weekly">Wekelijks</string>
+    <string name="frequency_monthly">Maandelijks</string>
     <string name="delete_button">Verwijderen</string>
     <string name="cancel_button">Annuleren</string>
 </resources>

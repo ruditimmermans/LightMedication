@@ -32,6 +32,10 @@
     <string name="battery_optimization_title">Battery Optimization</string>
     <string name="battery_optimization_message">For reliable reminders, please disable battery optimization for this app.</string>
     <string name="disable_optimization_button">Disable Optimization</string>
+    <string name="frequency_label">Frequency</string>
+    <string name="frequency_daily">Daily</string>
+    <string name="frequency_weekly">Weekly</string>
+    <string name="frequency_monthly">Monthly</string>
     <string name="delete_button">Delete</string>
     <string name="cancel_button">Cancel</string>
 </resources>

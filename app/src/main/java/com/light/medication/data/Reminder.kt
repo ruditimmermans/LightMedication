@@ -11,5 +11,6 @@ data class Reminder(
     val pillCount: String,
     val hour: Int,
     val minute: Int,
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,
+    val frequency: String = "Daily"
 )

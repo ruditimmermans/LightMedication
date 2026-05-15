@@ -1,5 +1,10 @@
 package com.light.medication
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.PowerManager
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,6 +25,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -75,20 +81,23 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
                 }
             }
         ) { padding ->
-            ReminderList(
-                reminders = reminders,
-                onDelete = { viewModel.deleteReminder(it) },
-                onToggle = { viewModel.toggleReminder(it) },
-                onEdit = { reminderToEdit = it },
-                modifier = Modifier.padding(padding)
-            )
+            Column(modifier = Modifier.padding(padding)) {
+                BatteryOptimizationBanner()
+                ReminderList(
+                    reminders = reminders,
+                    onDelete = { viewModel.deleteReminder(it) },
+                    onToggle = { viewModel.toggleReminder(it) },
+                    onEdit = { reminderToEdit = it },
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         if (showAddDialog) {
             ReminderDialog(
                 onDismiss = { showAddDialog = false },
-                onConfirm = { name, count, h, m ->
-                    viewModel.addReminder(name, count, h, m)
+                onConfirm = { name, count, h, m, freq ->
+                    viewModel.addReminder(name, count, h, m, freq)
                     showAddDialog = false
                 }
             )
@@ -98,11 +107,54 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
             ReminderDialog(
                 reminder = reminderToEdit,
                 onDismiss = { reminderToEdit = null },
-                onConfirm = { name, count, h, m ->
-                    viewModel.updateReminder(reminderToEdit!!, name, count, h, m)
+                onConfirm = { name, count, h, m, freq ->
+                    viewModel.updateReminder(reminderToEdit!!, name, count, h, m, freq)
                     reminderToEdit = null
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun BatteryOptimizationBanner() {
+    val context = LocalContext.current
+    val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+    var isOptimized by remember {
+        mutableStateOf(!powerManager.isIgnoringBatteryOptimizations(context.packageName))
+    }
+
+    if (isOptimized) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = stringResource(R.string.battery_optimization_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+                Text(
+                    text = stringResource(R.string.battery_optimization_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:${context.packageName}")
+                        }
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text(stringResource(R.string.disable_optimization_button))
+                }
+            }
         }
     }
 }
@@ -155,6 +207,16 @@ fun ReminderItem(
                     text = "${reminder.pillCount} pill(s) at ${String.format("%02d:%02d", reminder.hour, reminder.minute)}",
                     style = MaterialTheme.typography.bodyMedium
                 )
+                Text(
+                    text = "${stringResource(R.string.frequency_label)}: ${when(reminder.frequency) {
+                        "Daily" -> stringResource(R.string.frequency_daily)
+                        "Weekly" -> stringResource(R.string.frequency_weekly)
+                        "Monthly" -> stringResource(R.string.frequency_monthly)
+                        else -> reminder.frequency
+                    }}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Switch(checked = reminder.isEnabled, onCheckedChange = { onToggle(reminder) })
@@ -174,14 +236,17 @@ fun ReminderItem(
 fun ReminderDialog(
     reminder: Reminder? = null,
     onDismiss: () -> Unit,
-    onConfirm: (String, String, Int, Int) -> Unit
+    onConfirm: (String, String, Int, Int, String) -> Unit
 ) {
     val context = LocalContext.current
     var name by remember { mutableStateOf(reminder?.medicationName ?: "") }
     var count by remember { mutableStateOf(reminder?.pillCount ?: "1") }
     var hour by remember { mutableStateOf(reminder?.hour ?: 8) }
     var minute by remember { mutableStateOf(reminder?.minute ?: 0) }
+    var frequency by remember { mutableStateOf(reminder?.frequency ?: "Daily") }
     var showTimePicker by remember { mutableStateOf(false) }
+
+    val frequencies = listOf("Daily", "Weekly", "Monthly")
 
     if (showTimePicker) {
         val timePickerState = rememberTimePickerState(
@@ -225,16 +290,36 @@ fun ReminderDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.medication_name_label)) }
+                    label = { Text(stringResource(R.string.medication_name_label)) },
+                    modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = count,
                     onValueChange = { count = it },
                     label = { Text(stringResource(R.string.pill_count_label)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Button(onClick = { showTimePicker = true }, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.set_time_button, hour, minute))
+                }
+                
+                Text(stringResource(R.string.frequency_label), style = MaterialTheme.typography.labelLarge)
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    frequencies.forEachIndexed { index, label ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = frequencies.size),
+                            onClick = { frequency = label },
+                            selected = frequency == label
+                        ) {
+                            Text(when(label) {
+                                "Daily" -> stringResource(R.string.frequency_daily)
+                                "Weekly" -> stringResource(R.string.frequency_weekly)
+                                "Monthly" -> stringResource(R.string.frequency_monthly)
+                                else -> label
+                            })
+                        }
+                    }
                 }
             }
         },
@@ -242,7 +327,7 @@ fun ReminderDialog(
             TextButton(
                 onClick = {
                     if (name.isNotBlank() && count.isNotBlank()) {
-                        onConfirm(name, count, hour, minute)
+                        onConfirm(name, count, hour, minute, frequency)
                     } else {
                         Toast.makeText(context, context.getString(R.string.input_error_toast), Toast.LENGTH_SHORT).show()
                     }
@@ -301,7 +386,7 @@ fun AboutScreen(onBack: () -> Unit) {
         Text(
             text = stringResource(R.string.about_version),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.secondary
+            color = Color.White
         )
         
         Spacer(modifier = Modifier.height(48.dp))
