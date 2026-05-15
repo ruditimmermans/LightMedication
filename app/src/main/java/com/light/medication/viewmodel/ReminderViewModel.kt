@@ -71,4 +71,11 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+
+    fun markAsTaken(reminder: Reminder) {
+        viewModelScope.launch {
+            val updated = reminder.copy(lastTakenTimestamp = System.currentTimeMillis())
+            reminderDao.update(updated)
+        }
+    }
 }

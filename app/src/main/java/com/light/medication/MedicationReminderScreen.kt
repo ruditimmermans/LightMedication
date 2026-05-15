@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.light.medication.data.Reminder
+import com.light.medication.util.TimeUtils
 import com.light.medication.viewmodel.ReminderViewModel
 import java.util.Locale
 
@@ -88,6 +90,7 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
                     onDelete = { viewModel.deleteReminder(it) },
                     onToggle = { viewModel.toggleReminder(it) },
                     onEdit = { reminderToEdit = it },
+                    onTake = { viewModel.markAsTaken(it) },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -165,6 +168,7 @@ fun ReminderList(
     onDelete: (Reminder) -> Unit,
     onToggle: (Reminder) -> Unit,
     onEdit: (Reminder) -> Unit,
+    onTake: (Reminder) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (reminders.isEmpty()) {
@@ -178,7 +182,7 @@ fun ReminderList(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(reminders) { reminder ->
-                ReminderItem(reminder, onDelete, onToggle, onEdit)
+                ReminderItem(reminder, onDelete, onToggle, onEdit, onTake)
             }
         }
     }
@@ -189,7 +193,8 @@ fun ReminderItem(
     reminder: Reminder,
     onDelete: (Reminder) -> Unit,
     onToggle: (Reminder) -> Unit,
-    onEdit: (Reminder) -> Unit
+    onEdit: (Reminder) -> Unit,
+    onTake: (Reminder) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -204,21 +209,33 @@ fun ReminderItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = reminder.medicationName, style = MaterialTheme.typography.headlineSmall)
                 Text(
-                    text = "${reminder.pillCount} pill(s) at ${String.format("%02d:%02d", reminder.hour, reminder.minute)}",
+                    text = stringResource(R.string.pill_info, reminder.pillCount, TimeUtils.formatTime(reminder.hour, reminder.minute)),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "${stringResource(R.string.frequency_label)}: ${when(reminder.frequency) {
+                    text = stringResource(R.string.frequency_value_label, when(reminder.frequency) {
                         "Daily" -> stringResource(R.string.frequency_daily)
                         "Weekly" -> stringResource(R.string.frequency_weekly)
                         "Monthly" -> stringResource(R.string.frequency_monthly)
                         else -> reminder.frequency
-                    }}",
+                    }),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
+                reminder.lastTakenTimestamp?.let { timestamp ->
+                    val sdf = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm", java.util.Locale.getDefault())
+                    val date = sdf.format(java.util.Date(timestamp))
+                    Text(
+                        text = stringResource(R.string.last_taken_label, date),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { onTake(reminder) }) {
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.mark_as_taken_button), tint = if (reminder.lastTakenTimestamp != null) Color.Green else MaterialTheme.colorScheme.onSurface)
+                }
                 Switch(checked = reminder.isEnabled, onCheckedChange = { onToggle(reminder) })
                 IconButton(onClick = { onEdit(reminder) }) {
                     Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_button))
@@ -301,7 +318,7 @@ fun ReminderDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Button(onClick = { showTimePicker = true }, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.set_time_button, hour, minute))
+                    Text(stringResource(R.string.set_time_button, TimeUtils.formatTime(hour, minute)))
                 }
                 
                 Text(stringResource(R.string.frequency_label), style = MaterialTheme.typography.labelLarge)

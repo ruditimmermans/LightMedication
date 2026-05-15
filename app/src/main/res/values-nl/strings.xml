@@ -2,8 +2,8 @@
     <string name="screen_title">Medicatieherinnering</string>
     <string name="medication_name_label">Medicijnnaam</string>
     <string name="pill_count_label">Hoeveel pillen?</string>
-    <string name="set_time_button">Tijd instellen: %1$02d:%2$02d</string>
-    <string name="schedule_button">Dagelijkse herinnering plannen</string>
+    <string name="set_time_button">Tijd instellen: %1$s</string>
+    <string name="schedule_button">Herinnering plannen</string>
     <string name="permission_denied">Meldingsmachtiging geweigerd</string>
     <string name="reminder_set_toast">Herinnering ingesteld voor %1$s %2$s om %3$s</string>
     <string name="exact_alarm_permission_toast">Sta exacte alarmen toe in de instellingen</string>
@@ -36,4 +36,9 @@
     <string name="frequency_monthly">Maandelijks</string>
     <string name="delete_button">Verwijderen</string>
     <string name="cancel_button">Annuleren</string>
+    <string name="pill_info">%1$s pil(len) om %2$s</string>
+    <string name="last_taken_label">Laatst ingenomen: %1$s</string>
+    <string name="mark_as_taken_button">Markeren als ingenomen</string>
+    <string name="frequency_value_label">Frequentie: %1$s</string>
+    <string name="default_medication_name">Medicijn</string>
 </resources>

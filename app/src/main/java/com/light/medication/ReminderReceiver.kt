@@ -23,7 +23,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
 
         val id = intent.getIntExtra("REMINDER_ID", -1)
-        val medicationName = intent.getStringExtra("MEDICATION_NAME") ?: "Medication"
+        val medicationName = intent.getStringExtra("MEDICATION_NAME") ?: context.getString(R.string.default_medication_name)
         val pillCount = intent.getStringExtra("PILL_COUNT") ?: "1"
         val hour = intent.getIntExtra("HOUR", 8)
         val minute = intent.getIntExtra("MINUTE", 0)
@@ -69,8 +69,10 @@ class ReminderReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val activityIntent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
+        val activityIntent = Intent(context, ActionReceiver::class.java).apply {
+            putExtra("REMINDER_ID", notificationId)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
             context,
             notificationId,
             activityIntent,

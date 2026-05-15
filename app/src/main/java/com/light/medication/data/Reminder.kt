@@ -12,5 +12,6 @@ data class Reminder(
     val hour: Int,
     val minute: Int,
     val isEnabled: Boolean = true,
-    val frequency: String = "Daily"
+    val frequency: String = "Daily",
+    val lastTakenTimestamp: Long? = null
 )
