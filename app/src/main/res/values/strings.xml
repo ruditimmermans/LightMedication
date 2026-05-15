@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Light Medication</string>
+    <string name="app_name" translatable="false">MediLight</string>
     <string name="screen_title">Medication Reminder</string>
     <string name="medication_name_label">Medication Name</string>
     <string name="pill_count_label">How many pills?</string>
@@ -13,13 +13,19 @@
     <string name="notification_content">Take %1$s %2$s now</string>
     <string name="channel_name">Medication Reminders</string>
     <string name="about_button">About</string>
-    <string name="about_title">About Light Medication</string>
+    <string name="about_title">About MediLight</string>
     <string name="about_description" translatable="false">A simple, privacy-focused medication reminder app designed for ease of use and high visibility.</string>
     <string name="about_version" translatable="false">Version 1.0 Copyright Ⓒ 2026 by R. Timmermans</string>
     <string name="back_button">Back</string>
     <string name="add_reminder_title">Add Reminder</string>
     <string name="reminders_list_title">Your Reminders</string>
     <string name="no_reminders">No reminders scheduled</string>
+    <string name="edit_button">Edit</string>
+    <string name="edit_reminder_title">Edit Reminder</string>
+    <string name="update_button">Update Reminder</string>
+    <string name="battery_optimization_title">Battery Optimization</string>
+    <string name="battery_optimization_message">For reliable reminders, please disable battery optimization for this app.</string>
+    <string name="disable_optimization_button">Disable Optimization</string>
     <string name="delete_button">Delete</string>
     <string name="cancel_button">Cancel</string>
 </resources>

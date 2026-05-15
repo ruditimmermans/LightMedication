@@ -54,4 +54,19 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+
+    fun updateReminder(reminder: Reminder, medicationName: String, pillCount: String, hour: Int, minute: Int) {
+        viewModelScope.launch {
+            val updated = reminder.copy(
+                medicationName = medicationName,
+                pillCount = pillCount,
+                hour = hour,
+                minute = minute
+            )
+            reminderDao.update(updated)
+            if (updated.isEnabled) {
+                scheduler.scheduleDailyReminder(updated)
+            }
+        }
+    }
 }

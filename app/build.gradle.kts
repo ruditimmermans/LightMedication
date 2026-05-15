@@ -6,7 +6,7 @@ plugins {
 }
 
 base {
-    archivesName = "LightMedication-v1.0"
+    archivesName = "MediLight-v1.0"
 }
 
 android {

@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LIght Medication"
+rootProject.name = "MediLight"
 include(":app")

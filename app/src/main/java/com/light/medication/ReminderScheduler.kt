@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import com.light.medication.data.Reminder
 import java.util.Calendar
 
@@ -37,19 +36,11 @@ class ReminderScheduler(private val context: Context) {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
-        } else {
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
-        }
+        val alarmClockInfo = AlarmManager.AlarmClockInfo(
+            calendar.timeInMillis,
+            pendingIntent
+        )
+        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
     }
 
     fun cancelReminder(reminder: Reminder) {

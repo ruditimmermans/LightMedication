@@ -12,11 +12,17 @@
     <string name="notification_content">Neem nu %1$s %2$s</string>
     <string name="channel_name">Medicatieherinneringen</string>
     <string name="about_button">Over</string>
-    <string name="about_title">Over Light Medicatie</string>
+    <string name="about_title">Over MediLight</string>
     <string name="back_button">Terug</string>
     <string name="add_reminder_title">Herinnering toevoegen</string>
     <string name="reminders_list_title">Je herinneringen</string>
     <string name="no_reminders">Geen herinneringen gepland</string>
+    <string name="edit_button">Bewerken</string>
+    <string name="edit_reminder_title">Herinnering bewerken</string>
+    <string name="update_button">Herinnering bijwerken</string>
+    <string name="battery_optimization_title">Batterijoptimalisatie</string>
+    <string name="battery_optimization_message">Voor betrouwbare herinneringen schakelt u batterijoptimalisatie uit voor deze app.</string>
+    <string name="disable_optimization_button">Optimalisatie uitschakelen</string>
     <string name="delete_button">Verwijderen</string>
     <string name="cancel_button">Annuleren</string>
 </resources>

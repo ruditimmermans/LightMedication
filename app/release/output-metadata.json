@@ -13,7 +13,7 @@
       "attributes": [],
       "versionCode": 1,
       "versionName": "1.0",
-      "outputFile": "LightMedication-v1.0-release.apk"
+      "outputFile": "MediLight-v1.0-release.apk"
     }
   ],
   "elementType": "File",
@@ -22,14 +22,14 @@
       "minApi": 28,
       "maxApi": 30,
       "baselineProfiles": [
-        "baselineProfiles/1/LightMedication-v1.0-release.dm"
+        "baselineProfiles/1/MediLight-v1.0-release.dm"
       ]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
       "baselineProfiles": [
-        "baselineProfiles/0/LightMedication-v1.0-release.dm"
+        "baselineProfiles/0/MediLight-v1.0-release.dm"
       ]
     }
   ],

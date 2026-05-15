@@ -12,6 +12,7 @@ import com.light.medication.data.AppDatabase
 import com.light.medication.data.Reminder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ReminderReceiver : BroadcastReceiver() {
@@ -39,11 +40,15 @@ class ReminderReceiver : BroadcastReceiver() {
     private fun rescheduleAll(context: Context) {
         val db = AppDatabase.getDatabase(context)
         val scheduler = ReminderScheduler(context)
+        val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
-            db.reminderDao().getAllReminders().collect { reminders ->
+            try {
+                val reminders = db.reminderDao().getAllReminders().first()
                 reminders.filter { it.isEnabled }.forEach { reminder ->
                     scheduler.scheduleDailyReminder(reminder)
                 }
+            } finally {
+                pendingResult.finish()
             }
         }
     }

@@ -1,8 +1,5 @@
 package com.light.medication
 
-import android.Manifest
-import android.app.TimePickerDialog
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
@@ -34,8 +32,24 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
+    val context = LocalContext.current
     var showAboutScreen by remember { mutableStateOf(false) }
+    var reminderToEdit by remember { mutableStateOf<Reminder?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(context, context.getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     val reminders by viewModel.allReminders.collectAsState()
 
@@ -63,16 +77,28 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
                 reminders = reminders,
                 onDelete = { viewModel.deleteReminder(it) },
                 onToggle = { viewModel.toggleReminder(it) },
+                onEdit = { reminderToEdit = it },
                 modifier = Modifier.padding(padding)
             )
         }
 
         if (showAddDialog) {
-            AddReminderDialog(
+            ReminderDialog(
                 onDismiss = { showAddDialog = false },
                 onConfirm = { name, count, h, m ->
                     viewModel.addReminder(name, count, h, m)
                     showAddDialog = false
+                }
+            )
+        }
+
+        if (reminderToEdit != null) {
+            ReminderDialog(
+                reminder = reminderToEdit,
+                onDismiss = { reminderToEdit = null },
+                onConfirm = { name, count, h, m ->
+                    viewModel.updateReminder(reminderToEdit!!, name, count, h, m)
+                    reminderToEdit = null
                 }
             )
         }
@@ -84,6 +110,7 @@ fun ReminderList(
     reminders: List<Reminder>,
     onDelete: (Reminder) -> Unit,
     onToggle: (Reminder) -> Unit,
+    onEdit: (Reminder) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (reminders.isEmpty()) {
@@ -97,7 +124,7 @@ fun ReminderList(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(reminders) { reminder ->
-                ReminderItem(reminder, onDelete, onToggle)
+                ReminderItem(reminder, onDelete, onToggle, onEdit)
             }
         }
     }
@@ -107,7 +134,8 @@ fun ReminderList(
 fun ReminderItem(
     reminder: Reminder,
     onDelete: (Reminder) -> Unit,
-    onToggle: (Reminder) -> Unit
+    onToggle: (Reminder) -> Unit,
+    onEdit: (Reminder) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -126,8 +154,11 @@ fun ReminderItem(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Switch(checked = reminder.isEnabled, onCheckedChange = { onToggle(reminder) })
+                IconButton(onClick = { onEdit(reminder) }) {
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_button))
+                }
                 IconButton(onClick = { onDelete(reminder) }) {
                     Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_button))
                 }
@@ -136,36 +167,57 @@ fun ReminderItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddReminderDialog(
+fun ReminderDialog(
+    reminder: Reminder? = null,
     onDismiss: () -> Unit,
     onConfirm: (String, String, Int, Int) -> Unit
 ) {
     val context = LocalContext.current
-    var name by remember { mutableStateOf("") }
-    var count by remember { mutableStateOf("1") }
-    var hour by remember { mutableStateOf(8) }
-    var minute by remember { mutableStateOf(0) }
+    var name by remember { mutableStateOf(reminder?.medicationName ?: "") }
+    var count by remember { mutableStateOf(reminder?.pillCount ?: "1") }
+    var hour by remember { mutableStateOf(reminder?.hour ?: 8) }
+    var minute by remember { mutableStateOf(reminder?.minute ?: 0) }
     var showTimePicker by remember { mutableStateOf(false) }
 
     if (showTimePicker) {
-        TimePickerDialog(
-            context,
-            { _, h, m ->
-                hour = h
-                minute = m
-                showTimePicker = false
+        val timePickerState = rememberTimePickerState(
+            initialHour = hour,
+            initialMinute = minute,
+            is24Hour = true
+        )
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        hour = timePickerState.hour
+                        minute = timePickerState.minute
+                        showTimePicker = false
+                    }
+                ) {
+                    Text(stringResource(android.R.string.ok))
+                }
             },
-            hour,
-            minute,
-            true
-        ).show()
-        showTimePicker = false
+            dismissButton = {
+                TextButton(
+                    onClick = { showTimePicker = false }
+                ) {
+                    Text(stringResource(R.string.cancel_button))
+                }
+            },
+            text = {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    TimePicker(state = timePickerState)
+                }
+            }
+        )
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.add_reminder_title)) },
+        title = { Text(stringResource(if (reminder == null) R.string.add_reminder_title else R.string.edit_reminder_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -194,7 +246,7 @@ fun AddReminderDialog(
                     }
                 }
             ) {
-                Text(stringResource(R.string.schedule_button))
+                Text(stringResource(if (reminder == null) R.string.schedule_button else R.string.update_button))
             }
         },
         dismissButton = {
