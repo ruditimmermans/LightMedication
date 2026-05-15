@@ -14,7 +14,13 @@
     <string name="channel_name">Medication Reminders</string>
     <string name="about_button">About</string>
     <string name="about_title">About MediLight</string>
-    <string name="about_description" translatable="false">A simple, privacy-focused medication reminder app designed for ease of use and high visibility.</string>
+    <string name="about_description">This application is meant to assist in keeping track of your medications. It is not intended
+        to provide medical advice and no information provided by this application should be misconstrued
+        as such. The creators of this application are not responsible for any missed
+        doses of your medications for any reason. If you require medical assistance, please contact a medical professional.
+        By using this application, you are agreeing to the aforementioned terms as well as those of the GPL version 2.0 license under
+        which it is released. \n\n\n\n
+        This application is released under the GNU Public License Version 2.</string>
     <string name="about_version" translatable="false">Version 1.0 Copyright Ⓒ 2026 by R. Timmermans</string>
     <string name="back_button">Back</string>
     <string name="add_reminder_title">Add Reminder</string>

@@ -13,6 +13,13 @@
     <string name="channel_name">Medicatieherinneringen</string>
     <string name="about_button">Over</string>
     <string name="about_title">Over MediLight</string>
+    <string name="about_description">        Deze applicatie is bedoeld als hulp bij het bijhouden van je medicijnen. Het is niet bedoeld
+        om medisch advies te geven en geen enkele informatie die door deze applicatie wordt verstrekt mag verkeerd worden opgevat als zodanig. De makers van deze applicatie zijn niet verantwoordelijk voor gemiste
+        doses van uw medicijnen om welke reden dan ook. Als je medische hulp nodig hebt, neem dan contact op met een medische professional.
+        Door deze applicatie te gebruiken ga je akkoord met de bovenstaande voorwaarden en die van de GPL versie 2.0 licentie waaronder het is vrijgegeven.
+        waaronder het is vrijgegeven. \n\n
+
+        Deze applicatie is vrijgegeven onder de GNU Public License Version 2.</string>
     <string name="back_button">Terug</string>
     <string name="add_reminder_title">Herinnering toevoegen</string>
     <string name="reminders_list_title">Je herinneringen</string>
