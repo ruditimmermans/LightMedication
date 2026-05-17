@@ -13,5 +13,6 @@ data class Reminder(
     val minute: Int,
     val isEnabled: Boolean = true,
     val frequency: String = "Daily",
-    val lastTakenTimestamp: Long? = null
+    val lastTakenTimestamp: Long? = null,
+    val lastSkippedTimestamp: Long? = null
 )

@@ -78,4 +78,11 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
             reminderDao.update(updated)
         }
     }
+
+    fun markAsSkipped(reminder: Reminder) {
+        viewModelScope.launch {
+            val updated = reminder.copy(lastSkippedTimestamp = System.currentTimeMillis())
+            reminderDao.update(updated)
+        }
+    }
 }

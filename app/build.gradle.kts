@@ -5,8 +5,11 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
 }
 
+val appVersionName = "1.3"
+val appVersionCode = 4
+
 base {
-    archivesName = "MediLight-v1.2"
+    archivesName = "MediLight-v$appVersionName"
 }
 
 android {
@@ -21,8 +24,8 @@ android {
         applicationId = "com.light.medication"
         minSdk = 33
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

@@ -21,7 +21,7 @@
         By using this application, you are agreeing to the aforementioned terms as well as those of the GPL version 2.0 license under
         which it is released. \n\n\n\n
         This application is released under the GNU Public License Version 2.</string>
-    <string name="about_version" translatable="false">Version 1.2 Copyright Ⓒ 2026 by R. Timmermans</string>
+    <string name="about_version" translatable="false">Version %1$s Copyright Ⓒ 2026 by R. Timmermans</string>
     <string name="back_button">Back</string>
     <string name="add_reminder_title">Add Reminder</string>
     <string name="reminders_list_title">Your Reminders</string>
@@ -40,6 +40,7 @@
     <string name="cancel_button">Cancel</string>
     <string name="pill_info">%1$s pill(s) at %2$s</string>
     <string name="last_taken_label">Last taken: %1$s</string>
+    <string name="last_skipped_label">Last skipped: %1$s</string>
     <string name="mark_as_taken_button">Mark as taken</string>
     <string name="frequency_value_label">Frequency: %1$s</string>
     <string name="default_medication_name">Medication</string>

@@ -1,5 +1,6 @@
 package com.light.medication
 
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -14,6 +15,9 @@ class ActionReceiver : BroadcastReceiver() {
         val reminderId = intent.getIntExtra("REMINDER_ID", -1)
         if (reminderId == -1) return
 
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(reminderId)
+
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -22,15 +26,21 @@ class ActionReceiver : BroadcastReceiver() {
                 val reminder = reminders.find { it.id == reminderId }
                 
                 if (reminder != null) {
-                    val updatedReminder = reminder.copy(lastTakenTimestamp = System.currentTimeMillis())
+                    val updatedReminder = if (intent.action == "ACTION_DISMISSED") {
+                        reminder.copy(lastSkippedTimestamp = System.currentTimeMillis())
+                    } else {
+                        reminder.copy(lastTakenTimestamp = System.currentTimeMillis())
+                    }
                     db.reminderDao().update(updatedReminder)
                 }
 
-                // Open the app to show the change
-                val mainIntent = Intent(context, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                // Only open the app if it was a click (not a dismissal)
+                if (intent.action != "ACTION_DISMISSED") {
+                    val mainIntent = Intent(context, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    }
+                    context.startActivity(mainIntent)
                 }
-                context.startActivity(mainIntent)
             } finally {
                 pendingResult.finish()
             }

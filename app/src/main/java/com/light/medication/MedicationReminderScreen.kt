@@ -223,12 +223,21 @@ fun ReminderItem(
                     color = MaterialTheme.colorScheme.secondary
                 )
                 reminder.lastTakenTimestamp?.let { timestamp ->
-                    val sdf = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm", java.util.Locale.getDefault())
+                    val sdf = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
                     val date = sdf.format(java.util.Date(timestamp))
                     Text(
                         text = stringResource(R.string.last_taken_label, date),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+                reminder.lastSkippedTimestamp?.let { timestamp ->
+                    val sdf = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+                    val date = sdf.format(java.util.Date(timestamp))
+                    Text(
+                        text = stringResource(R.string.last_skipped_label, date),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -401,7 +410,7 @@ fun AboutScreen(onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
         
         Text(
-            text = stringResource(R.string.about_version),
+            text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
             style = MaterialTheme.typography.labelMedium,
             color = Color.White
         )

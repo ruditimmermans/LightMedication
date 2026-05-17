@@ -38,6 +38,7 @@
     <string name="cancel_button">Annuleren</string>
     <string name="pill_info">%1$s pil(len) om %2$s</string>
     <string name="last_taken_label">Laatst ingenomen: %1$s</string>
+    <string name="last_skipped_label">Laatst overgeslagen: %1$s</string>
     <string name="mark_as_taken_button">Markeren als ingenomen</string>
     <string name="frequency_value_label">Frequentie: %1$s</string>
     <string name="default_medication_name">Medicijn</string>
