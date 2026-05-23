@@ -227,8 +227,9 @@ fun ReminderItem(
                     val date = sdf.format(java.util.Date(timestamp))
                     Text(
                         text = stringResource(R.string.last_taken_label, date),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.tertiary
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
                 reminder.lastSkippedTimestamp?.let { timestamp ->
@@ -236,7 +237,8 @@ fun ReminderItem(
                     val date = sdf.format(java.util.Date(timestamp))
                     Text(
                         text = stringResource(R.string.last_skipped_label, date),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.error
                     )
                 }

@@ -76,6 +76,15 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             val updated = reminder.copy(lastTakenTimestamp = System.currentTimeMillis())
             reminderDao.update(updated)
+            
+            // Cancel notification if it's currently showing
+            val notificationManager = getApplication<Application>().getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            notificationManager.cancel(reminder.id)
+
+            // Reschedule for the next period, skipping today if it hasn't happened yet
+            if (updated.isEnabled) {
+                scheduler.scheduleReminder(updated, forceNext = true)
+            }
         }
     }
 
@@ -83,6 +92,15 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             val updated = reminder.copy(lastSkippedTimestamp = System.currentTimeMillis())
             reminderDao.update(updated)
+
+            // Cancel notification if it's currently showing
+            val notificationManager = getApplication<Application>().getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            notificationManager.cancel(reminder.id)
+
+            // Reschedule for the next period, skipping today if it hasn't happened yet
+            if (updated.isEnabled) {
+                scheduler.scheduleReminder(updated, forceNext = true)
+            }
         }
     }
 }
