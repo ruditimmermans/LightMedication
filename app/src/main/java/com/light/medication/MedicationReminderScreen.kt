@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.light.medication.data.Reminder
 import com.light.medication.util.TimeUtils
@@ -207,7 +208,18 @@ fun ReminderItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = reminder.medicationName, style = MaterialTheme.typography.headlineSmall)
+                AndroidView(
+                    factory = { context ->
+                        LightToggle(context).apply {
+                            setOnCheckedChangeListener { onToggle(reminder) }
+                        }
+                    },
+                    update = { view ->
+                        view.isChecked = reminder.isEnabled
+                        view.setText(reminder.medicationName)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Text(
                     text = stringResource(R.string.pill_info, reminder.pillCount, TimeUtils.formatTime(reminder.hour, reminder.minute)),
                     style = MaterialTheme.typography.bodyMedium
@@ -247,7 +259,6 @@ fun ReminderItem(
                 IconButton(onClick = { onTake(reminder) }) {
                     Icon(Icons.Default.Check, contentDescription = stringResource(R.string.mark_as_taken_button), tint = if (reminder.lastTakenTimestamp != null) Color.Green else MaterialTheme.colorScheme.onSurface)
                 }
-                Switch(checked = reminder.isEnabled, onCheckedChange = { onToggle(reminder) })
                 IconButton(onClick = { onEdit(reminder) }) {
                     Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_button))
                 }
