@@ -7,15 +7,29 @@ import androidx.compose.runtime.Composable
 private val BlackAndWhiteColorScheme = darkColorScheme(
     primary = White,
     onPrimary = Black,
-    secondary = Gray,
-    onSecondary = White,
+    primaryContainer = White,
+    onPrimaryContainer = Black,
+    secondary = White,
+    onSecondary = Black,
+    secondaryContainer = Black,
+    onSecondaryContainer = White,
+    tertiary = White,
+    onTertiary = Black,
+    tertiaryContainer = Black,
+    onTertiaryContainer = White,
     background = Black,
     onBackground = White,
     surface = Black,
     onSurface = White,
-    surfaceVariant = DarkGray,
+    surfaceVariant = Black,
     onSurfaceVariant = White,
-    outline = Gray
+    error = White,
+    onError = Black,
+    errorContainer = Black,
+    onErrorContainer = White,
+    outline = White,
+    outlineVariant = Gray,
+    scrim = Black
 )
 
 @Composable

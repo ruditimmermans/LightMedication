@@ -79,7 +79,11 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = { showAddDialog = true }) {
+                FloatingActionButton(
+                    onClick = { showAddDialog = true },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
                     Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_reminder_title))
                 }
             }
@@ -133,7 +137,8 @@ fun BatteryOptimizationBanner() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -199,6 +204,8 @@ fun ReminderItem(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
@@ -257,7 +264,11 @@ fun ReminderItem(
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { onTake(reminder) }) {
-                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.mark_as_taken_button), tint = if (reminder.lastTakenTimestamp != null) Color.Green else MaterialTheme.colorScheme.onSurface)
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = stringResource(R.string.mark_as_taken_button),
+                        tint = if (reminder.lastTakenTimestamp != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                    )
                 }
                 IconButton(onClick = { onEdit(reminder) }) {
                     Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_button))
@@ -425,7 +436,7 @@ fun AboutScreen(onBack: () -> Unit) {
         Text(
             text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
             style = MaterialTheme.typography.labelMedium,
-            color = Color.White
+            color = MaterialTheme.colorScheme.onBackground
         )
         
         Spacer(modifier = Modifier.height(48.dp))
@@ -434,8 +445,8 @@ fun AboutScreen(onBack: () -> Unit) {
             onClick = onBack,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
             Text(stringResource(R.string.back_button))
