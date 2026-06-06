@@ -11,7 +11,7 @@ All user data is stored locally is not share with either the developer or any ot
 
 <img width="2160" height="900" alt="image" src="https://github.com/ruditimmermans/LIghtMedication/blob/main/screenshots/combined.png" />
 
-### [LightEmail](https://github.com/ruditimmermans/LIghtMedication) ([ruditimmermans](https://github.com/ruditimmermans))
+### [MediLight](https://github.com/ruditimmermans/LIghtMedication) ([ruditimmermans](https://github.com/ruditimmermans))
 
 ## Installation
 
