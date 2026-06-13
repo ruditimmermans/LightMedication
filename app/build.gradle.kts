@@ -5,8 +5,8 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
 }
 
-val appVersionName = "1.6"
-val appVersionCode = 6
+val appVersionName = "1.7"
+val appVersionCode = 7
 
 base {
     archivesName = "MediLight-v$appVersionName"

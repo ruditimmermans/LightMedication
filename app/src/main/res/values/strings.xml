@@ -12,6 +12,7 @@
     <string name="notification_title">Time for your medication!</string>
     <string name="notification_content">Take %1$s %2$s now</string>
     <string name="channel_name">Medication Reminders</string>
+    <string name="channel_description">Notifications for scheduled medication doses</string>
     <string name="about_button">About</string>
     <string name="about_title">About MediLight</string>
     <string name="about_description">This application is meant to assist in keeping track of your medications. It is not intended

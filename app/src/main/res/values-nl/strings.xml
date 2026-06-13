@@ -11,6 +11,7 @@
     <string name="notification_title">Tijd voor je medicatie!</string>
     <string name="notification_content">Neem nu %1$s %2$s</string>
     <string name="channel_name">Medicatieherinneringen</string>
+    <string name="channel_description">Meldingen voor geplande medicatiedoses</string>
     <string name="about_button">Over</string>
     <string name="about_title">Over MediLight</string>
     <string name="about_description">        Deze applicatie is bedoeld als hulp bij het bijhouden van je medicijnen. Het is niet bedoeld

@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import com.light.medication.data.Reminder
 import java.util.Calendar
 
@@ -11,6 +12,14 @@ class ReminderScheduler(private val context: Context) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     fun scheduleReminder(reminder: Reminder, forceNext: Boolean = false) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                // If we can't schedule exact alarms, we might want to fall back to inexact
+                // or just wait for the user to grant permission.
+                // For now, we'll try to schedule anyway, which might fail or be inexact.
+            }
+        }
+
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("REMINDER_ID", reminder.id)
             putExtra("MEDICATION_NAME", reminder.medicationName)
@@ -31,6 +40,7 @@ class ReminderScheduler(private val context: Context) {
             set(Calendar.HOUR_OF_DAY, reminder.hour)
             set(Calendar.MINUTE, reminder.minute)
             set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
             
             if (forceNext || timeInMillis <= System.currentTimeMillis()) {
                 when (reminder.frequency) {

@@ -1,8 +1,10 @@
 package com.light.medication
 
+import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.widget.Toast
@@ -13,6 +15,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -21,12 +26,11 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +42,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.light.medication.data.Reminder
 import com.light.medication.util.TimeUtils
 import com.light.medication.viewmodel.ReminderViewModel
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,12 +60,14 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
     }
 
     LaunchedEffect(Unit) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
     val reminders by viewModel.allReminders.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isWideScreen = configuration.screenWidthDp > 600 || configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
     if (showAboutScreen) {
         AboutScreen(onBack = { showAboutScreen = false })
@@ -90,14 +95,27 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
         ) { padding ->
             Column(modifier = Modifier.padding(padding)) {
                 BatteryOptimizationBanner()
-                ReminderList(
-                    reminders = reminders,
-                    onDelete = { viewModel.deleteReminder(it) },
-                    onToggle = { viewModel.toggleReminder(it) },
-                    onEdit = { reminderToEdit = it },
-                    onTake = { viewModel.markAsTaken(it) },
-                    modifier = Modifier.weight(1f)
-                )
+                ExactAlarmPermissionBanner()
+                
+                if (isWideScreen) {
+                    ReminderGrid(
+                        reminders = reminders,
+                        onDelete = { viewModel.deleteReminder(it) },
+                        onToggle = { viewModel.toggleReminder(it) },
+                        onEdit = { reminderToEdit = it },
+                        onTake = { viewModel.markAsTaken(it) },
+                        modifier = Modifier.weight(1f)
+                    )
+                } else {
+                    ReminderList(
+                        reminders = reminders,
+                        onDelete = { viewModel.deleteReminder(it) },
+                        onToggle = { viewModel.toggleReminder(it) },
+                        onEdit = { reminderToEdit = it },
+                        onTake = { viewModel.markAsTaken(it) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
 
@@ -120,6 +138,47 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
                     reminderToEdit = null
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun ExactAlarmPermissionBanner() {
+    val context = LocalContext.current
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        var hasPermission by remember { mutableStateOf(alarmManager.canScheduleExactAlarms()) }
+
+        if (!hasPermission) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.exact_alarm_permission_toast),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                data = Uri.parse("package:${context.packageName}")
+                            }
+                            context.startActivity(intent)
+                        }
+                    ) {
+                        Text(stringResource(R.string.edit_button))
+                    }
+                }
+            }
         }
     }
 }
@@ -169,6 +228,34 @@ fun BatteryOptimizationBanner() {
 }
 
 @Composable
+fun ReminderGrid(
+    reminders: List<Reminder>,
+    onDelete: (Reminder) -> Unit,
+    onToggle: (Reminder) -> Unit,
+    onEdit: (Reminder) -> Unit,
+    onTake: (Reminder) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (reminders.isEmpty()) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(stringResource(R.string.no_reminders), style = MaterialTheme.typography.bodyLarge)
+        }
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 300.dp),
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(reminders) { reminder ->
+                ReminderItem(reminder, onDelete, onToggle, onEdit, onTake)
+            }
+        }
+    }
+}
+
+@Composable
 fun ReminderList(
     reminders: List<Reminder>,
     onDelete: (Reminder) -> Unit,
@@ -207,75 +294,90 @@ fun ReminderItem(
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                AndroidView(
-                    factory = { context ->
-                        LightToggle(context).apply {
-                            setOnCheckedChangeListener { onToggle(reminder) }
-                        }
-                    },
-                    update = { view ->
-                        view.isChecked = reminder.isEnabled
-                        view.setText(reminder.medicationName)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    text = stringResource(R.string.pill_info, reminder.pillCount, TimeUtils.formatTime(reminder.hour, reminder.minute)),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = stringResource(R.string.frequency_value_label, when(reminder.frequency) {
-                        "Daily" -> stringResource(R.string.frequency_daily)
-                        "Weekly" -> stringResource(R.string.frequency_weekly)
-                        "Monthly" -> stringResource(R.string.frequency_monthly)
-                        else -> reminder.frequency
-                    }),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                reminder.lastTakenTimestamp?.let { timestamp ->
-                    val sdf = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
-                    val date = sdf.format(java.util.Date(timestamp))
-                    Text(
-                        text = stringResource(R.string.last_taken_label, date),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-                reminder.lastSkippedTimestamp?.let { timestamp ->
-                    val sdf = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
-                    val date = sdf.format(java.util.Date(timestamp))
-                    Text(
-                        text = stringResource(R.string.last_skipped_label, date),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    AndroidView(
+                        factory = { context ->
+                            LightToggle(context).apply {
+                                setOnCheckedChangeListener { onToggle(reminder) }
+                            }
+                        },
+                        update = { view ->
+                            view.isChecked = reminder.isEnabled
+                            view.setText(reminder.medicationName)
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { onTake(reminder) }) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = stringResource(R.string.mark_as_taken_button),
-                        tint = if (reminder.lastTakenTimestamp != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.pill_info, reminder.pillCount, TimeUtils.formatTime(reminder.hour, reminder.minute)),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.frequency_value_label, when(reminder.frequency) {
+                            "Daily" -> stringResource(R.string.frequency_daily)
+                            "Weekly" -> stringResource(R.string.frequency_weekly)
+                            "Monthly" -> stringResource(R.string.frequency_monthly)
+                            else -> reminder.frequency
+                        }),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
-                IconButton(onClick = { onEdit(reminder) }) {
-                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_button))
+                
+                Row {
+                    IconButton(onClick = { onTake(reminder) }) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = stringResource(R.string.mark_as_taken_button),
+                            tint = if (reminder.lastTakenTimestamp != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        )
+                    }
+                    IconButton(onClick = { onEdit(reminder) }) {
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_button))
+                    }
+                    IconButton(onClick = { onDelete(reminder) }) {
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_button))
+                    }
                 }
-                IconButton(onClick = { onDelete(reminder) }) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_button))
-                }
+            }
+
+            reminder.lastTakenTimestamp?.let { timestamp ->
+                val sdf = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+                val date = sdf.format(java.util.Date(timestamp))
+                Text(
+                    text = stringResource(R.string.last_taken_label, date),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            reminder.lastSkippedTimestamp?.let { timestamp ->
+                val sdf = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+                val date = sdf.format(java.util.Date(timestamp))
+                Text(
+                    text = stringResource(R.string.last_skipped_label, date),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
         }
     }
@@ -406,40 +508,41 @@ fun AboutScreen(onBack: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Use a smaller icon for small screens
         Icon(
             imageVector = Icons.Default.Info,
             contentDescription = null,
-            modifier = Modifier.size(80.dp),
+            modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        Text(
-            text = stringResource(R.string.about_title),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
         )
         
         Spacer(modifier = Modifier.height(16.dp))
         
         Text(
+            text = stringResource(R.string.about_title),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
             text = stringResource(R.string.about_description),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground
         )
         
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         
         Text(
             text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onBackground
         )
         
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(32.dp))
         
         Button(
             onClick = onBack,

@@ -26,21 +26,23 @@ class ActionReceiver : BroadcastReceiver() {
                 val reminder = reminders.find { it.id == reminderId }
                 
                 if (reminder != null) {
-                    val updatedReminder = if (intent.action == "ACTION_DISMISSED") {
-                        reminder.copy(lastSkippedTimestamp = System.currentTimeMillis())
-                    } else {
-                        reminder.copy(lastTakenTimestamp = System.currentTimeMillis())
+                    val updatedReminder = when (intent.action) {
+                        "ACTION_DISMISSED" -> reminder.copy(lastSkippedTimestamp = System.currentTimeMillis())
+                        else -> reminder.copy(lastTakenTimestamp = System.currentTimeMillis())
                     }
                     db.reminderDao().update(updatedReminder)
                 }
 
-                // Only open the app if it was a click (not a dismissal)
+                // For Android 15 compatibility, we should only start activity if it's a direct user interaction
+                // and the intent action expects it.
                 if (intent.action != "ACTION_DISMISSED") {
                     val mainIntent = Intent(context, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                     }
                     context.startActivity(mainIntent)
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             } finally {
                 pendingResult.finish()
             }

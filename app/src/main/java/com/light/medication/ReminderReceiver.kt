@@ -15,28 +15,63 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED || 
+            intent.action == Intent.ACTION_TIME_CHANGED ||
+            intent.action == Intent.ACTION_TIMEZONE_CHANGED) {
             rescheduleAll(context)
             return
         }
 
         val id = intent.getIntExtra("REMINDER_ID", -1)
-        val medicationName = intent.getStringExtra("MEDICATION_NAME") ?: context.getString(R.string.default_medication_name)
-        val pillCount = intent.getStringExtra("PILL_COUNT") ?: "1"
-        val hour = intent.getIntExtra("HOUR", 8)
-        val minute = intent.getIntExtra("MINUTE", 0)
-        val frequency = intent.getStringExtra("FREQUENCY") ?: "Daily"
+        if (id == -1) return
 
-        showNotification(context, medicationName, pillCount, id)
-        
-        // Reschedule based on frequency
-        val scheduler = ReminderScheduler(context)
-        scheduler.scheduleReminder(
-            Reminder(id = id, medicationName = medicationName, pillCount = pillCount, hour = hour, minute = minute, frequency = frequency)
-        )
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val db = AppDatabase.getDatabase(context)
+                val reminders = db.reminderDao().getAllReminders().first()
+                val reminder = reminders.find { it.id == id }
+                
+                if (reminder != null && reminder.isEnabled) {
+                    if (shouldShowNotification(reminder)) {
+                        showNotification(context, reminder.medicationName, reminder.pillCount, reminder.id)
+                    }
+                    
+                    // Always reschedule for the next occurrence
+                    val scheduler = ReminderScheduler(context)
+                    scheduler.scheduleReminder(reminder)
+                }
+            } finally {
+                pendingResult.finish()
+            }
+        }
+    }
+
+    private fun shouldShowNotification(reminder: Reminder): Boolean {
+        val lastAction = maxOf(reminder.lastTakenTimestamp ?: 0L, reminder.lastSkippedTimestamp ?: 0L)
+        if (lastAction == 0L) return true
+
+        val now = Calendar.getInstance()
+        val lastActionCal = Calendar.getInstance().apply { timeInMillis = lastAction }
+
+        return when (reminder.frequency) {
+            "Daily" -> {
+                lastActionCal.get(Calendar.YEAR) != now.get(Calendar.YEAR) ||
+                lastActionCal.get(Calendar.DAY_OF_YEAR) != now.get(Calendar.DAY_OF_YEAR)
+            }
+            "Weekly" -> {
+                now.timeInMillis - lastAction > 6 * 24 * 60 * 60 * 1000L
+            }
+            "Monthly" -> {
+                lastActionCal.get(Calendar.YEAR) != now.get(Calendar.YEAR) ||
+                lastActionCal.get(Calendar.MONTH) != now.get(Calendar.MONTH)
+            }
+            else -> true
+        }
     }
 
     private fun rescheduleAll(context: Context) {
@@ -66,11 +101,16 @@ class ReminderReceiver : BroadcastReceiver() {
                 channelId,
                 context.getString(R.string.channel_name),
                 NotificationManager.IMPORTANCE_HIGH
-            )
+            ).apply {
+                description = context.getString(R.string.channel_description)
+                enableVibration(true)
+                setShowBadge(true)
+            }
             notificationManager.createNotificationChannel(channel)
         }
 
         val activityIntent = Intent(context, ActionReceiver::class.java).apply {
+            action = "ACTION_TAKEN"
             putExtra("REMINDER_ID", notificationId)
         }
         val pendingIntent = PendingIntent.getBroadcast(
@@ -86,13 +126,13 @@ class ReminderReceiver : BroadcastReceiver() {
         }
         val dismissedPendingIntent = PendingIntent.getBroadcast(
             context,
-            notificationId + 1000, // Use a different request code
+            notificationId + 1000,
             dismissedIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_launcher_foreground) // Use drawable, not mipmap for small icon
             .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
             .setContentTitle(context.getString(R.string.notification_title))
             .setContentText(context.getString(R.string.notification_content, pillCount, medicationName))
@@ -104,6 +144,11 @@ class ReminderReceiver : BroadcastReceiver() {
             .setContentIntent(pendingIntent)
             .setDeleteIntent(dismissedPendingIntent)
             .setAutoCancel(true)
+            .addAction(
+                R.drawable.ic_launcher_foreground,
+                context.getString(R.string.mark_as_taken_button),
+                pendingIntent
+            )
             .build()
 
         notificationManager.notify(notificationId, notification)
