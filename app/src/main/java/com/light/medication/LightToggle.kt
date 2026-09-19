@@ -23,22 +23,21 @@ class LightToggle @JvmOverloads constructor(
         get() = mark.checked
         set(value) { mark.checked = value }
 
+    var isCompact: Boolean = false
+        set(value) {
+            field = value
+            updateStyles()
+        }
+
     init {
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
-        minimumHeight = (44f * resources.displayMetrics.density).toInt()
         isClickable = true
         isFocusable = true
 
-        addView(
-            mark,
-            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-                marginEnd = (18f * resources.displayMetrics.density).toInt()
-            },
-        )
+        addView(mark)
         label.apply {
             setTextColor(context.getColor(R.color.white))
-            textSize = 20f
             attrs?.let {
                 val a = context.obtainStyledAttributes(it, intArrayOf(android.R.attr.text))
                 text = a.getText(0)
@@ -47,10 +46,24 @@ class LightToggle @JvmOverloads constructor(
         }
         addView(label, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
 
+        updateStyles()
+
         setOnClickListener {
             mark.checked = !mark.checked
             listener?.invoke(mark.checked)
         }
+    }
+
+    private fun updateStyles() {
+        val density = resources.displayMetrics.density
+        minimumHeight = ((if (isCompact) 36f else 44f) * density).toInt()
+        
+        val markParams = mark.layoutParams as? LayoutParams ?: LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        markParams.marginEnd = ((if (isCompact) 12f else 18f) * density).toInt()
+        mark.layoutParams = markParams
+
+        label.textSize = if (isCompact) 16f else 20f
+        mark.isCompact = isCompact
     }
 
     fun setText(text: CharSequence) { label.text = text }
@@ -74,13 +87,24 @@ class LightToggle @JvmOverloads constructor(
     /** The line-and-dot mark. Its width is constant across states so the row never shifts. */
     private class ToggleMark(context: Context) : View(context) {
         private val density = resources.displayMetrics.density
-        private val circle = 13f * density
-        private val lineWidth = 19f * density
-        private val lineHeight = 3f * density
-        private val border = 3f * density
+        private var circle = 13f * density
+        private var lineWidth = 19f * density
+        private var lineHeight = 3f * density
+        private var border = 3f * density
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = context.getColor(R.color.white)
         }
+
+        var isCompact = false
+            set(value) {
+                field = value
+                circle = (if (value) 10f else 13f) * density
+                lineWidth = (if (value) 14f else 19f) * density
+                lineHeight = (if (value) 2.5f else 3f) * density
+                border = (if (value) 2.5f else 3f) * density
+                requestLayout()
+                invalidate()
+            }
 
         var checked = false
             set(value) {

@@ -358,6 +358,7 @@ fun ReminderItem(
                             }
                         },
                         update = { view ->
+                            view.isCompact = compact
                             view.isChecked = reminder.isEnabled
                             val takenToday = TimeUtils.isTakenToday(reminder.lastTakenTimestamp)
                             view.setText(if (takenToday) "✓ ${reminder.medicationName}" else reminder.medicationName)

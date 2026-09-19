@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,10 +30,13 @@ fun MedicationLogScreen(
     var showClearConfirm by remember { mutableStateOf(false) }
     var logToDelete by remember { mutableStateOf<MedicationLog?>(null) }
 
+    val configuration = LocalConfiguration.current
+    val isBoxyScreen = configuration.screenWidthDp.toFloat() / configuration.screenHeightDp.toFloat() > 0.75f
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.log_title)) },
+                title = { Text(stringResource(R.string.log_title), style = if (isBoxyScreen) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_button))
@@ -55,8 +59,8 @@ fun MedicationLogScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.padding(padding).fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(if (isBoxyScreen) 8.dp else 16.dp),
+                verticalArrangement = Arrangement.spacedBy(if (isBoxyScreen) 4.dp else 8.dp)
             ) {
                 items(logs) { log ->
                     Card(
@@ -64,7 +68,7 @@ fun MedicationLogScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
+                        Column(modifier = Modifier.padding(if (isBoxyScreen) 8.dp else 12.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -73,10 +77,10 @@ fun MedicationLogScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = log.medicationName,
-                                        style = MaterialTheme.typography.titleMedium,
+                                        style = if (isBoxyScreen) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold
                                     )
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = TimeUtils.formatFullDateTime(log.timestamp),
                                         style = MaterialTheme.typography.bodySmall,
@@ -86,14 +90,18 @@ fun MedicationLogScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         text = if (log.action == "Taken") stringResource(R.string.log_action_taken) else stringResource(R.string.log_action_skipped),
-                                        style = MaterialTheme.typography.labelLarge,
+                                        style = if (isBoxyScreen) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
                                         color = if (log.action == "Taken") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                                     )
-                                    IconButton(onClick = { logToDelete = log }) {
+                                    IconButton(
+                                        onClick = { logToDelete = log },
+                                        modifier = if (isBoxyScreen) Modifier.size(32.dp) else Modifier
+                                    ) {
                                         Icon(
                                             Icons.Default.Delete,
                                             contentDescription = stringResource(R.string.delete_button),
-                                            tint = MaterialTheme.colorScheme.error
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = if (isBoxyScreen) Modifier.size(20.dp) else Modifier
                                         )
                                     }
                                 }
