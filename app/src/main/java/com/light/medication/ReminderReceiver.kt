@@ -151,13 +151,13 @@ class ReminderReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Use drawable, not mipmap for small icon
-            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
+        val config = context.resources.configuration
+        val isBoxyScreen = config.screenWidthDp.toFloat() / config.screenHeightDp.toFloat() > 0.75f
+
+        val builder = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(context.getString(R.string.notification_title))
             .setContentText(context.getString(R.string.notification_content, pillCount, medicationName))
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(context.getString(R.string.notification_content, pillCount, medicationName)))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -165,12 +165,17 @@ class ReminderReceiver : BroadcastReceiver() {
             .setDeleteIntent(dismissedPendingIntent)
             .setAutoCancel(true)
             .addAction(
-                R.drawable.ic_launcher_foreground,
+                R.drawable.ic_notification,
                 context.getString(R.string.mark_as_taken_button),
                 takenPendingIntent
             )
-            .build()
 
-        notificationManager.notify(notificationId, notification)
+        if (!isBoxyScreen) {
+            builder.setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
+            builder.setStyle(NotificationCompat.BigTextStyle()
+                .bigText(context.getString(R.string.notification_content, pillCount, medicationName)))
+        }
+
+        notificationManager.notify(notificationId, builder.build())
     }
 }

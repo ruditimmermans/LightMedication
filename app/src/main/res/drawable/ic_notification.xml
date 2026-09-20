@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:translateX="54"
+        android:translateY="54"
+        android:rotation="-45">
+        <!-- Simplified white capsule for notifications -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M-25,-12 L0,-12 L0,12 L-25,12 A12,12 0 0 1 -25,-12 Z" />
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:fillColor="#00000000"
+            android:pathData="M0,-12 L25,-12 A12,12 0 0 1 25,12 L0,12 L0,-12 Z" />
+    </group>
+</vector>
