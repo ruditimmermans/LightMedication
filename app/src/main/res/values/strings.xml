@@ -61,4 +61,6 @@
     <string name="log_action_skipped">Skipped</string>
     <string name="clear_log_confirm_title">Clear History?</string>
     <string name="clear_log_confirm_message">Are you sure you want to delete all intake history?</string>
+    <string name="donate_button">Donate on Ko-Fi</string>
+    <string name="kofi_url" translatable="false">https://ko-fi.com/ruditimmermans</string>
 </resources>

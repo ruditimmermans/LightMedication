@@ -59,4 +59,6 @@
     <string name="log_action_skipped">Overgeslagen</string>
     <string name="clear_log_confirm_title">Geschiedenis wissen?</string>
     <string name="clear_log_confirm_message">Weet u zeker dat u de volledige innamegeschiedenis wilt verwijderen?</string>
+    <string name="donate_button">Doneren via Ko-Fi</string>
+    <string name="kofi_url" translatable="false">https://ko-fi.com/ruditimmermans</string>
 </resources>

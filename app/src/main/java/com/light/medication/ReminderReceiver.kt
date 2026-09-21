@@ -154,10 +154,18 @@ class ReminderReceiver : BroadcastReceiver() {
         val config = context.resources.configuration
         val isBoxyScreen = config.screenWidthDp.toFloat() / config.screenHeightDp.toFloat() > 0.75f
 
+        val title = if (isBoxyScreen) {
+            context.getString(R.string.screen_title)
+        } else {
+            context.getString(R.string.notification_title)
+        }
+
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.notification_title))
+            .setContentTitle(title)
             .setContentText(context.getString(R.string.notification_content, pillCount, medicationName))
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText(context.getString(R.string.notification_content, pillCount, medicationName)))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -172,8 +180,6 @@ class ReminderReceiver : BroadcastReceiver() {
 
         if (!isBoxyScreen) {
             builder.setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
-            builder.setStyle(NotificationCompat.BigTextStyle()
-                .bigText(context.getString(R.string.notification_content, pillCount, medicationName)))
         }
 
         notificationManager.notify(notificationId, builder.build())

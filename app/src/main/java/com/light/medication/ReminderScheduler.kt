@@ -53,11 +53,21 @@ class ReminderScheduler(private val context: Context) {
             }
         }
 
-        val alarmClockInfo = AlarmManager.AlarmClockInfo(
-            scheduledTime.toInstant().toEpochMilli(),
-            pendingIntent
-        )
-        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+        val triggerTime = System.currentTimeMillis() + java.time.Duration.between(now, scheduledTime).toMillis()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                pendingIntent
+            )
+        }
     }
 
     fun cancelReminder(reminder: Reminder) {

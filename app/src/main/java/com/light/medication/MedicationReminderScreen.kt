@@ -622,6 +622,7 @@ fun AboutScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val updater = remember { AppUpdater(context) }
+    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
     
     var showRestoreConfirm by remember { mutableStateOf(false) }
     var updateRelease by remember { mutableStateOf<GitHubRelease?>(null) }
@@ -746,6 +747,20 @@ fun AboutScreen(
         )
         
         Spacer(modifier = Modifier.height(if (compact) 12.dp else 32.dp))
+
+        Button(
+            onClick = {
+                uriHandler.openUri(context.getString(R.string.kofi_url))
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            contentPadding = if (compact) PaddingValues(vertical = 4.dp) else ButtonDefaults.ContentPadding
+        ) {
+            Text(stringResource(R.string.donate_button), fontWeight = FontWeight.Bold)
+        }
+
+        Spacer(modifier = Modifier.height(if (compact) 4.dp else 8.dp))
 
         Button(
             onClick = {
