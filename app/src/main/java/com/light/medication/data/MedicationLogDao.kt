@@ -16,4 +16,7 @@ interface MedicationLogDao {
 
     @Query("DELETE FROM medication_logs")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM medication_logs WHERE timestamp < :cutoffTimestamp")
+    suspend fun deleteOlderThan(cutoffTimestamp: Long)
 }

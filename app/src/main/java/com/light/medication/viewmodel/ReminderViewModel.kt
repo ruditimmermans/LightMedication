@@ -8,8 +8,11 @@ import com.light.medication.ReminderScheduler
 import com.light.medication.data.AppDatabase
 import com.light.medication.data.MedicationLog
 import com.light.medication.data.Reminder
+import com.light.medication.util.AutoClearPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
@@ -20,6 +23,29 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
     private val reminderDao = db.reminderDao()
     private val logDao = db.medicationLogDao()
     private val scheduler = ReminderScheduler(application)
+
+    private val _autoClearInterval = MutableStateFlow(AutoClearPreferences.getAutoClearInterval(application))
+    val autoClearInterval: StateFlow<String> = _autoClearInterval.asStateFlow()
+
+    init {
+        autoClearLogs()
+    }
+
+    fun setAutoClearInterval(interval: String) {
+        AutoClearPreferences.setAutoClearInterval(getApplication(), interval)
+        _autoClearInterval.value = interval
+        autoClearLogs()
+    }
+
+    fun autoClearLogs() {
+        viewModelScope.launch {
+            val interval = _autoClearInterval.value
+            val cutoff = AutoClearPreferences.getCutoffTimestamp(interval)
+            if (cutoff != null) {
+                logDao.deleteOlderThan(cutoff)
+            }
+        }
+    }
 
     val allReminders: StateFlow<List<Reminder>> = reminderDao.getAllReminders()
         .stateIn(
@@ -97,6 +123,8 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
                 timestamp = timestamp,
                 action = "Taken"
             ))
+
+            autoClearLogs()
             
             // Cancel notification if it's currently showing
             val notificationManager = getApplication<Application>().getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -121,6 +149,8 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
                 timestamp = timestamp,
                 action = "Skipped"
             ))
+
+            autoClearLogs()
 
             // Cancel notification if it's currently showing
             val notificationManager = getApplication<Application>().getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager

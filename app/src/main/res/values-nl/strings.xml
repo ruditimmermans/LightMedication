@@ -59,6 +59,16 @@
     <string name="log_action_skipped">Overgeslagen</string>
     <string name="clear_log_confirm_title">Geschiedenis wissen?</string>
     <string name="clear_log_confirm_message">Weet u zeker dat u de volledige innamegeschiedenis wilt verwijderen?</string>
+    <string name="auto_clear_title">Geschiedenis automatisch wissen</string>
+    <string name="auto_clear_label">Automatisch wissen: %1$s</string>
+    <string name="auto_clear_dialog_title">Geschiedenis automatisch wissen</string>
+    <string name="auto_clear_dialog_message">Kies hoe lang logboekberichten bewaard moeten blijven. Oudere berichten worden automatisch verwijderd.</string>
+    <string name="auto_clear_off">Uit</string>
+    <string name="auto_clear_weekly">Wekelijks</string>
+    <string name="auto_clear_monthly">Maandelijks</string>
+    <string name="auto_clear_three_months">Elke 3 maanden</string>
+    <string name="auto_clear_five_months">Elke 5 maanden</string>
+    <string name="auto_clear_yearly">Jaarlijks</string>
     <string name="donate_button">Doneren via Ko-Fi</string>
     <string name="kofi_url" translatable="false">https://ko-fi.com/ruditimmermans</string>
 </resources>

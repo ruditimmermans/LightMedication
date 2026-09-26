@@ -44,6 +44,8 @@ class ActionReceiver : BroadcastReceiver() {
                         timestamp = timestamp,
                         action = action
                     ))
+
+                    com.light.medication.util.AutoClearPreferences.performAutoClear(context)
                     
                     // Reschedule for the next occurrence
                     val scheduler = ReminderScheduler(context)

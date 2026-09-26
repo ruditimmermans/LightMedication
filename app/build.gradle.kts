@@ -1,4 +1,4 @@
-val appVersionName = "2.9"
+val appVersionName = "3.0"
 
 plugins {
     alias(libs.plugins.android.application)
@@ -19,7 +19,7 @@ android {
         applicationId = "com.light.medication"
         minSdk = 33
         targetSdk = 37
-        versionCode = 19
+        versionCode = 20
         versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
