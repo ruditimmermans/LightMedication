@@ -36,6 +36,10 @@ fun MedicationLogScreen(
     val logs by viewModel.allLogs.collectAsState()
     val autoClearInterval by viewModel.autoClearInterval.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.autoClearLogs()
+    }
+
     var showClearConfirm by remember { mutableStateOf(false) }
     var showAutoClearDialog by remember { mutableStateOf(false) }
     var logToDelete by remember { mutableStateOf<MedicationLog?>(null) }

@@ -43,6 +43,8 @@ class ReminderReceiver : BroadcastReceiver() {
                         showNotification(context, reminder.medicationName, reminder.pillCount, reminder.id)
                     }
                     
+                    com.light.medication.util.AutoClearPreferences.performAutoClear(context)
+
                     // Always reschedule for the next occurrence
                     val scheduler = ReminderScheduler(context)
                     scheduler.scheduleReminder(reminder)
@@ -92,6 +94,9 @@ class ReminderReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                com.light.medication.util.AutoClearPreferences.scheduleAutoClearWork(context)
+                com.light.medication.util.AutoClearPreferences.performAutoClear(context)
+
                 val reminders = db.reminderDao().getAllReminders().first()
                 reminders.filter { it.isEnabled }.forEach { reminder ->
                     scheduler.scheduleReminder(reminder)

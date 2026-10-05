@@ -39,11 +39,7 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
 
     fun autoClearLogs() {
         viewModelScope.launch {
-            val interval = _autoClearInterval.value
-            val cutoff = AutoClearPreferences.getCutoffTimestamp(interval)
-            if (cutoff != null) {
-                logDao.deleteOlderThan(cutoff)
-            }
+            AutoClearPreferences.performAutoClear(getApplication())
         }
     }
 

@@ -1,4 +1,4 @@
-val appVersionName = "3.0"
+val appVersionName = "3.1"
 
 plugins {
     alias(libs.plugins.android.application)
@@ -19,7 +19,7 @@ android {
         applicationId = "com.light.medication"
         minSdk = 33
         targetSdk = 37
-        versionCode = 20
+        versionCode = 21
         versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)

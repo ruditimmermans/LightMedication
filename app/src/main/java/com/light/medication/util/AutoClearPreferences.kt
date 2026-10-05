@@ -3,12 +3,17 @@ package com.light.medication.util
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.light.medication.data.AppDatabase
 import java.time.ZonedDateTime
+import java.util.concurrent.TimeUnit
 
 object AutoClearPreferences {
     private const val PREFS_NAME = "medilight_prefs"
     private const val KEY_AUTO_CLEAR_INTERVAL = "auto_clear_interval"
+    private const val WORK_NAME = "medilight_log_cleanup_work"
 
     const val INTERVAL_OFF = "OFF"
     const val INTERVAL_WEEKLY = "WEEKLY"
@@ -28,6 +33,24 @@ object AutoClearPreferences {
     fun setAutoClearInterval(context: Context, interval: String) {
         getSharedPreferences(context).edit {
             putString(KEY_AUTO_CLEAR_INTERVAL, interval)
+        }
+        scheduleAutoClearWork(context)
+    }
+
+    fun scheduleAutoClearWork(context: Context) {
+        val interval = getAutoClearInterval(context)
+        val workManager = WorkManager.getInstance(context)
+        if (interval == INTERVAL_OFF) {
+            workManager.cancelUniqueWork(WORK_NAME)
+        } else {
+            val cleanupRequest = PeriodicWorkRequestBuilder<LogCleanupWorker>(
+                1, TimeUnit.DAYS
+            ).build()
+            workManager.enqueueUniquePeriodicWork(
+                WORK_NAME,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                cleanupRequest
+            )
         }
     }
 
