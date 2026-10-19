@@ -67,6 +67,11 @@
     <string name="clear_log_option_since_three_months">Last 3 months (Every 3 months)</string>
     <string name="clear_log_option_since_five_months">Last 5 months (Every 5 months)</string>
     <string name="clear_log_option_since_yearly">Last 1 year (Yearly)</string>
+    <string name="clear_log_option_older_weekly">Older than 1 week (Weekly)</string>
+    <string name="clear_log_option_older_monthly">Older than 1 month (Monthly)</string>
+    <string name="clear_log_option_older_three_months">Older than 3 months (Every 3 months)</string>
+    <string name="clear_log_option_older_five_months">Older than 5 months (Every 5 months)</string>
+    <string name="clear_log_option_older_yearly">Older than 1 year (Yearly)</string>
     <string name="auto_clear_title">Auto-clear History</string>
     <string name="auto_clear_label">Auto-clear: %1$s</string>
     <string name="auto_clear_dialog_title">Auto-clear History</string>
