@@ -66,8 +66,8 @@ object AutoClearPreferences {
         return cutoff?.toInstant()?.toEpochMilli()
     }
 
-    suspend fun performAutoClear(context: Context) {
-        val interval = getAutoClearInterval(context)
+    suspend fun performAutoClear(context: Context, explicitInterval: String? = null) {
+        val interval = explicitInterval ?: getAutoClearInterval(context)
         val cutoff = getCutoffTimestamp(interval) ?: return
         val db = AppDatabase.getDatabase(context)
         db.medicationLogDao().deleteOlderThan(cutoff)

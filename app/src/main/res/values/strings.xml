@@ -60,7 +60,13 @@
     <string name="log_action_taken">Taken</string>
     <string name="log_action_skipped">Skipped</string>
     <string name="clear_log_confirm_title">Clear History?</string>
-    <string name="clear_log_confirm_message">Are you sure you want to delete all intake history?</string>
+    <string name="clear_log_confirm_message">Select which intake history entries you want to delete:</string>
+    <string name="clear_log_option_all">All history</string>
+    <string name="clear_log_option_weekly">Older than 1 week</string>
+    <string name="clear_log_option_monthly">Older than 1 month</string>
+    <string name="clear_log_option_three_months">Older than 3 months</string>
+    <string name="clear_log_option_five_months">Older than 5 months</string>
+    <string name="clear_log_option_yearly">Older than 1 year</string>
     <string name="auto_clear_title">Auto-clear History</string>
     <string name="auto_clear_label">Auto-clear: %1$s</string>
     <string name="auto_clear_dialog_title">Auto-clear History</string>

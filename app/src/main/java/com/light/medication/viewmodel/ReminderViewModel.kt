@@ -34,12 +34,12 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
     fun setAutoClearInterval(interval: String) {
         AutoClearPreferences.setAutoClearInterval(getApplication(), interval)
         _autoClearInterval.value = interval
-        autoClearLogs()
+        autoClearLogs(interval)
     }
 
-    fun autoClearLogs() {
+    fun autoClearLogs(explicitInterval: String? = null) {
         viewModelScope.launch {
-            AutoClearPreferences.performAutoClear(getApplication())
+            AutoClearPreferences.performAutoClear(getApplication(), explicitInterval)
         }
     }
 
@@ -162,6 +162,21 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
     fun clearLogs() {
         viewModelScope.launch {
             logDao.deleteAll()
+        }
+    }
+
+    fun clearLogsOlderThan(interval: String) {
+        viewModelScope.launch {
+            if (interval == "ALL") {
+                logDao.deleteAll()
+            } else {
+                val cutoff = AutoClearPreferences.getCutoffTimestamp(interval)
+                if (cutoff != null) {
+                    logDao.deleteOlderThan(cutoff)
+                } else {
+                    logDao.deleteAll()
+                }
+            }
         }
     }
 

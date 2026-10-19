@@ -246,13 +246,56 @@ fun MedicationLogScreen(
     }
 
     if (showClearConfirm) {
+        var selectedClearOption by remember { mutableStateOf("ALL") }
         AlertDialog(
             onDismissRequest = { showClearConfirm = false },
             title = { Text(stringResource(R.string.clear_log_confirm_title)) },
-            text = { Text(stringResource(R.string.clear_log_confirm_message)) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .selectableGroup(),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.clear_log_confirm_message),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val clearOptions = listOf(
+                        "ALL" to stringResource(R.string.clear_log_option_all),
+                        AutoClearPreferences.INTERVAL_WEEKLY to stringResource(R.string.clear_log_option_weekly),
+                        AutoClearPreferences.INTERVAL_MONTHLY to stringResource(R.string.clear_log_option_monthly),
+                        AutoClearPreferences.INTERVAL_THREE_MONTHS to stringResource(R.string.clear_log_option_three_months),
+                        AutoClearPreferences.INTERVAL_FIVE_MONTHS to stringResource(R.string.clear_log_option_five_months),
+                        AutoClearPreferences.INTERVAL_YEARLY to stringResource(R.string.clear_log_option_yearly)
+                    )
+                    clearOptions.forEach { (key, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = (selectedClearOption == key),
+                                    onClick = { selectedClearOption = key },
+                                    role = Role.RadioButton
+                                )
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = (selectedClearOption == key),
+                                onClick = null
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = label, style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.clearLogs()
+                    viewModel.clearLogsOlderThan(selectedClearOption)
                     showClearConfirm = false
                 }) {
                     Text(stringResource(R.string.delete_button), color = MaterialTheme.colorScheme.error)
@@ -270,7 +313,7 @@ fun MedicationLogScreen(
         AlertDialog(
             onDismissRequest = { logToDelete = null },
             title = { Text(stringResource(R.string.delete_button)) },
-            text = { Text(stringResource(R.string.clear_log_confirm_message)) },
+            text = { Text(log.medicationName) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteLog(log)
