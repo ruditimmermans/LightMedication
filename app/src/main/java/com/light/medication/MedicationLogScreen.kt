@@ -129,7 +129,7 @@ fun MedicationLogScreen(
                     contentPadding = PaddingValues(if (isBoxyScreen) 8.dp else 16.dp),
                     verticalArrangement = Arrangement.spacedBy(if (isBoxyScreen) 4.dp else 8.dp)
                 ) {
-                    items(logs) { log ->
+                    items(logs, key = { it.id }) { log ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),

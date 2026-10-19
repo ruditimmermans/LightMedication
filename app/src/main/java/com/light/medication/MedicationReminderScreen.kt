@@ -41,6 +41,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.light.medication.data.Reminder
 import com.light.medication.util.TimeUtils
@@ -111,7 +114,7 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
         AboutScreen(
             onBack = { showAboutScreen = false },
             onBackup = { backupLauncher.launch("medilight_backup.json") },
-            onRestore = { restoreLauncher.launch(arrayOf("application/json")) },
+            onRestore = { restoreLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream", "*/*")) },
             compact = isBoxyScreen
         )
     } else {
@@ -167,7 +170,7 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
                             }
                         }
                     } else {
-                        items(reminders) { reminder ->
+                        items(reminders, key = { it.id }) { reminder ->
                             ReminderItem(
                                 reminder = reminder,
                                 onDelete = { viewModel.deleteReminder(it) },
@@ -198,7 +201,7 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
                             }
                         }
                     } else {
-                        items(reminders) { reminder ->
+                        items(reminders, key = { it.id }) { reminder ->
                             ReminderItem(
                                 reminder = reminder,
                                 onDelete = { viewModel.deleteReminder(it) },
@@ -242,6 +245,19 @@ fun ExactAlarmPermissionBanner(compact: Boolean = false) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         var hasPermission by remember { mutableStateOf(alarmManager.canScheduleExactAlarms()) }
+        val lifecycleOwner = LocalLifecycleOwner.current
+
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    hasPermission = alarmManager.canScheduleExactAlarms()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
+        }
 
         if (!hasPermission) {
             Card(
@@ -286,6 +302,19 @@ fun BatteryOptimizationBanner(compact: Boolean = false) {
     val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
     var isOptimized by remember {
         mutableStateOf(!powerManager.isIgnoringBatteryOptimizations(context.packageName))
+    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                isOptimized = !powerManager.isIgnoringBatteryOptimizations(context.packageName)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     if (isOptimized) {

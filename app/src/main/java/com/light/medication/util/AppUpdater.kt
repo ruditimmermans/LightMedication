@@ -3,9 +3,11 @@ package com.light.medication.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
+import android.provider.Settings
 import androidx.core.content.FileProvider
 import com.light.medication.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -13,8 +15,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @Serializable
 data class GitHubRelease(
@@ -76,7 +76,8 @@ class AppUpdater(private val context: Context) {
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) return@withContext
             
-            val apkFile = File(context.externalCacheDir, "update.apk")
+            val cacheDirectory = context.externalCacheDir ?: context.cacheDir
+            val apkFile = File(cacheDirectory, "update.apk")
             FileOutputStream(apkFile).use { output ->
                 response.body?.byteStream()?.copyTo(output)
             }
@@ -88,6 +89,15 @@ class AppUpdater(private val context: Context) {
     }
 
     private fun installApk(file: File) {
+        if (!context.packageManager.canRequestPackageInstalls()) {
+            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                data = Uri.parse("package:${context.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+            return
+        }
+
         val uri = FileProvider.getUriForFile(
             context,
             "${context.packageName}.fileprovider",

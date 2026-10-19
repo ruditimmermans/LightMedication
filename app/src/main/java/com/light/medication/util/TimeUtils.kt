@@ -7,8 +7,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object TimeUtils {
-    private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.getDefault())
-
     fun formatTime(hour: Int, minute: Int): String {
         return String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
     }
@@ -21,7 +19,8 @@ object TimeUtils {
     }
 
     fun formatFullDateTime(timestamp: Long): String {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.getDefault())
         val dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault())
-        return dateTime.format(dateTimeFormatter)
+        return dateTime.format(formatter)
     }
 }

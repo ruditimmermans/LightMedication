@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import com.light.medication.data.AppDatabase
 import com.light.medication.data.Reminder
+import com.light.medication.util.AutoClearPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -23,7 +24,8 @@ class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || 
             intent.action == Intent.ACTION_TIME_CHANGED ||
-            intent.action == Intent.ACTION_TIMEZONE_CHANGED) {
+            intent.action == Intent.ACTION_TIMEZONE_CHANGED ||
+            intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             rescheduleAll(context)
             return
         }
@@ -43,12 +45,14 @@ class ReminderReceiver : BroadcastReceiver() {
                         showNotification(context, reminder.medicationName, reminder.pillCount, reminder.id)
                     }
                     
-                    com.light.medication.util.AutoClearPreferences.performAutoClear(context)
+                    AutoClearPreferences.performAutoClear(context)
 
                     // Always reschedule for the next occurrence
                     val scheduler = ReminderScheduler(context)
                     scheduler.scheduleReminder(reminder)
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             } finally {
                 pendingResult.finish()
             }
@@ -59,26 +63,32 @@ class ReminderReceiver : BroadcastReceiver() {
         val lastAction = maxOf(reminder.lastTakenTimestamp ?: 0L, reminder.lastSkippedTimestamp ?: 0L)
         val now = LocalDateTime.now(ZoneId.systemDefault())
         
-        // If never taken/skipped, check if the scheduled time for today has passed
+        val scheduledToday = now.withHour(reminder.hour)
+            .withMinute(reminder.minute)
+            .withSecond(0)
+            .withNano(0)
+
+        // Don't show notification if it is currently before today's scheduled time
+        if (now.isBefore(scheduledToday)) {
+            return false
+        }
+
         if (lastAction == 0L) {
-            val scheduledToday = now.withHour(reminder.hour)
-                .withMinute(reminder.minute)
-                .withSecond(0)
-                .withNano(0)
-            
-            // Only show if we are within a reasonable window (e.g., 1 hour) of the scheduled time
-            // or if it's the very first time scheduling.
-            return !now.isBefore(scheduledToday)
+            return true
         }
 
         val lastActionTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastAction), ZoneId.systemDefault())
+
+        // If the action was taken or skipped for today's scheduled slot, do not notify again
+        if (!lastActionTime.isBefore(scheduledToday)) {
+            return false
+        }
 
         return when (reminder.frequency) {
             "Daily" -> {
                 now.toLocalDate().isAfter(lastActionTime.toLocalDate())
             }
             "Weekly" -> {
-                // Check if it's been at least 6 days since the last action
                 ChronoUnit.DAYS.between(lastActionTime, now) >= 6
             }
             "Monthly" -> {
@@ -94,13 +104,15 @@ class ReminderReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                com.light.medication.util.AutoClearPreferences.scheduleAutoClearWork(context)
-                com.light.medication.util.AutoClearPreferences.performAutoClear(context)
+                AutoClearPreferences.scheduleAutoClearWork(context)
+                AutoClearPreferences.performAutoClear(context)
 
                 val reminders = db.reminderDao().getAllReminders().first()
                 reminders.filter { it.isEnabled }.forEach { reminder ->
                     scheduler.scheduleReminder(reminder)
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             } finally {
                 pendingResult.finish()
             }
@@ -140,7 +152,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
         val takenPendingIntent = PendingIntent.getBroadcast(
             context,
-            notificationId + 2000,
+            notificationId + 100_000,
             takenIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -151,7 +163,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
         val dismissedPendingIntent = PendingIntent.getBroadcast(
             context,
-            notificationId + 1000,
+            notificationId + 200_000,
             dismissedIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

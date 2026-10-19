@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import com.light.medication.data.Reminder
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -13,14 +12,6 @@ class ReminderScheduler(private val context: Context) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     fun scheduleReminder(reminder: Reminder, forceNext: Boolean = false) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!alarmManager.canScheduleExactAlarms()) {
-                // If we can't schedule exact alarms, we might want to fall back to inexact
-                // or just wait for the user to grant permission.
-                // For now, we'll try to schedule anyway, which might fail or be inexact.
-            }
-        }
-
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("REMINDER_ID", reminder.id)
             putExtra("MEDICATION_NAME", reminder.medicationName)
@@ -44,7 +35,7 @@ class ReminderScheduler(private val context: Context) {
             .withNano(0)
 
         // Ensure the alarm is set in the future
-        if (scheduledTime.isBefore(now) || forceNext) {
+        if (!scheduledTime.isAfter(now) || forceNext) {
             scheduledTime = when (reminder.frequency) {
                 "Daily" -> scheduledTime.plusDays(1)
                 "Weekly" -> scheduledTime.plusWeeks(1)
@@ -53,16 +44,24 @@ class ReminderScheduler(private val context: Context) {
             }
         }
 
-        val triggerTime = System.currentTimeMillis() + java.time.Duration.between(now, scheduledTime).toMillis()
+        val triggerTime = scheduledTime.toInstant().toEpochMilli()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                triggerTime,
-                pendingIntent
-            )
+        if (alarmManager.canScheduleExactAlarms()) {
+            try {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+            } catch (_: SecurityException) {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+            }
         } else {
-            alarmManager.setExact(
+            alarmManager.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime,
                 pendingIntent

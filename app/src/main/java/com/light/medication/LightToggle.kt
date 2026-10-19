@@ -40,7 +40,9 @@ class LightToggle @JvmOverloads constructor(
             setTextColor(context.getColor(R.color.white))
             attrs?.let {
                 val a = context.obtainStyledAttributes(it, intArrayOf(android.R.attr.text))
-                text = a.getText(0)
+                if (a.hasValue(0)) {
+                    text = a.getText(0)
+                }
                 a.recycle()
             }
         }
@@ -56,7 +58,7 @@ class LightToggle @JvmOverloads constructor(
 
     private fun updateStyles() {
         val density = resources.displayMetrics.density
-        minimumHeight = ((if (isCompact) 36f else 44f) * density).toInt()
+        minimumHeight = ((if (isCompact) 44f else 48f) * density).toInt()
         
         val markParams = mark.layoutParams as? LayoutParams ?: LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         markParams.marginEnd = ((if (isCompact) 12f else 18f) * density).toInt()
@@ -71,7 +73,7 @@ class LightToggle @JvmOverloads constructor(
     /** Fires only on user taps, never on programmatic [isChecked] changes. */
     fun setOnCheckedChangeListener(onChange: (Boolean) -> Unit) { listener = onChange }
 
-    /** Dim and stop responding to taps while disabled (e.g. during the voice-model download). */
+    /** Dim and stop responding to taps while disabled. */
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
         alpha = if (enabled) 1f else 0.4f
