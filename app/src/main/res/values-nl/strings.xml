@@ -60,11 +60,11 @@
     <string name="clear_log_confirm_title">Geschiedenis wissen?</string>
     <string name="clear_log_confirm_message">Selecteer welke innamegeschiedenis u wilt verwijderen:</string>
     <string name="clear_log_option_all">Volledige geschiedenis</string>
-    <string name="clear_log_option_weekly">Ouder dan 1 week</string>
-    <string name="clear_log_option_monthly">Ouder dan 1 maand</string>
-    <string name="clear_log_option_three_months">Ouder dan 3 maanden</string>
-    <string name="clear_log_option_five_months">Ouder dan 5 maanden</string>
-    <string name="clear_log_option_yearly">Ouder dan 1 jaar</string>
+    <string name="clear_log_option_since_weekly">Afgelopen 1 week (Wekelijks)</string>
+    <string name="clear_log_option_since_monthly">Afgelopen 1 maand (Maandelijks)</string>
+    <string name="clear_log_option_since_three_months">Afgelopen 3 maanden (Elke 3 maanden)</string>
+    <string name="clear_log_option_since_five_months">Afgelopen 5 maanden (Elke 5 maanden)</string>
+    <string name="clear_log_option_since_yearly">Afgelopen 1 jaar (Jaarlijks)</string>
     <string name="auto_clear_title">Geschiedenis automatisch wissen</string>
     <string name="auto_clear_label">Automatisch wissen: %1$s</string>
     <string name="auto_clear_dialog_title">Geschiedenis automatisch wissen</string>

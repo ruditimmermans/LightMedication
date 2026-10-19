@@ -265,11 +265,16 @@ fun MedicationLogScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     val clearOptions = listOf(
                         "ALL" to stringResource(R.string.clear_log_option_all),
-                        AutoClearPreferences.INTERVAL_WEEKLY to stringResource(R.string.clear_log_option_weekly),
-                        AutoClearPreferences.INTERVAL_MONTHLY to stringResource(R.string.clear_log_option_monthly),
-                        AutoClearPreferences.INTERVAL_THREE_MONTHS to stringResource(R.string.clear_log_option_three_months),
-                        AutoClearPreferences.INTERVAL_FIVE_MONTHS to stringResource(R.string.clear_log_option_five_months),
-                        AutoClearPreferences.INTERVAL_YEARLY to stringResource(R.string.clear_log_option_yearly)
+                        "SINCE_WEEK" to stringResource(R.string.clear_log_option_since_weekly),
+                        "SINCE_MONTH" to stringResource(R.string.clear_log_option_since_monthly),
+                        "SINCE_THREE_MONTHS" to stringResource(R.string.clear_log_option_since_three_months),
+                        "SINCE_FIVE_MONTHS" to stringResource(R.string.clear_log_option_since_five_months),
+                        "SINCE_YEAR" to stringResource(R.string.clear_log_option_since_yearly),
+                        "OLDER_WEEK" to stringResource(R.string.clear_log_option_older_weekly),
+                        "OLDER_MONTH" to stringResource(R.string.clear_log_option_older_monthly),
+                        "OLDER_THREE_MONTHS" to stringResource(R.string.clear_log_option_older_three_months),
+                        "OLDER_FIVE_MONTHS" to stringResource(R.string.clear_log_option_older_five_months),
+                        "OLDER_YEAR" to stringResource(R.string.clear_log_option_older_yearly)
                     )
                     clearOptions.forEach { (key, label) ->
                         Row(
@@ -295,7 +300,7 @@ fun MedicationLogScreen(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.clearLogsOlderThan(selectedClearOption)
+                    viewModel.clearLogsByOption(selectedClearOption)
                     showClearConfirm = false
                 }) {
                     Text(stringResource(R.string.delete_button), color = MaterialTheme.colorScheme.error)

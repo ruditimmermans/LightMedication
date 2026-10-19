@@ -165,6 +165,50 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun clearLogsByOption(optionKey: String) {
+        viewModelScope.launch {
+            when (optionKey) {
+                "ALL" -> logDao.deleteAll()
+
+                // Recent history (from cutoff until now)
+                "SINCE_WEEK", AutoClearPreferences.INTERVAL_WEEKLY -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_WEEKLY)?.let { logDao.deleteSince(it) }
+                }
+                "SINCE_MONTH", AutoClearPreferences.INTERVAL_MONTHLY -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_MONTHLY)?.let { logDao.deleteSince(it) }
+                }
+                "SINCE_THREE_MONTHS", AutoClearPreferences.INTERVAL_THREE_MONTHS -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_THREE_MONTHS)?.let { logDao.deleteSince(it) }
+                }
+                "SINCE_FIVE_MONTHS", AutoClearPreferences.INTERVAL_FIVE_MONTHS -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_FIVE_MONTHS)?.let { logDao.deleteSince(it) }
+                }
+                "SINCE_YEAR", AutoClearPreferences.INTERVAL_YEARLY -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_YEARLY)?.let { logDao.deleteSince(it) }
+                }
+
+                // Older history (older than cutoff)
+                "OLDER_WEEK" -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_WEEKLY)?.let { logDao.deleteOlderThan(it) }
+                }
+                "OLDER_MONTH" -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_MONTHLY)?.let { logDao.deleteOlderThan(it) }
+                }
+                "OLDER_THREE_MONTHS" -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_THREE_MONTHS)?.let { logDao.deleteOlderThan(it) }
+                }
+                "OLDER_FIVE_MONTHS" -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_FIVE_MONTHS)?.let { logDao.deleteOlderThan(it) }
+                }
+                "OLDER_YEAR" -> {
+                    AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_YEARLY)?.let { logDao.deleteOlderThan(it) }
+                }
+
+                else -> logDao.deleteAll()
+            }
+        }
+    }
+
     fun clearLogsOlderThan(interval: String) {
         viewModelScope.launch {
             if (interval == "ALL") {
