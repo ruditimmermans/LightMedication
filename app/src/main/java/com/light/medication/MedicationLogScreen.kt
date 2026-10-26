@@ -182,7 +182,7 @@ fun MedicationLogScreen(
     }
 
     if (showAutoClearDialog) {
-        var selectedInterval by remember { mutableStateOf(autoClearInterval) }
+        var selectedInterval by remember(autoClearInterval) { mutableStateOf(autoClearInterval) }
         AlertDialog(
             onDismissRequest = { showAutoClearDialog = false },
             title = { Text(stringResource(R.string.auto_clear_dialog_title)) },

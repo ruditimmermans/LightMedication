@@ -7,6 +7,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.light.medication.data.AppDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
@@ -44,12 +46,12 @@ object AutoClearPreferences {
             workManager.cancelUniqueWork(WORK_NAME)
         } else {
             val cleanupRequest = PeriodicWorkRequestBuilder<LogCleanupWorker>(
-                1, TimeUnit.DAYS
+                1, TimeUnit.DAYS,
             ).build()
             workManager.enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.UPDATE,
-                cleanupRequest
+                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+                cleanupRequest,
             )
         }
     }
@@ -66,9 +68,9 @@ object AutoClearPreferences {
         return cutoff?.toInstant()?.toEpochMilli()
     }
 
-    suspend fun performAutoClear(context: Context, explicitInterval: String? = null) {
+    suspend fun performAutoClear(context: Context, explicitInterval: String? = null) = withContext(Dispatchers.IO) {
         val interval = explicitInterval ?: getAutoClearInterval(context)
-        val cutoff = getCutoffTimestamp(interval) ?: return
+        val cutoff = getCutoffTimestamp(interval) ?: return@withContext
         val db = AppDatabase.getDatabase(context)
         db.medicationLogDao().deleteOlderThan(cutoff)
     }

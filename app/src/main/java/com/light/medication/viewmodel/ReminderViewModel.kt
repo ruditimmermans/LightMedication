@@ -175,36 +175,36 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
                 "ALL" -> logDao.deleteAll()
 
                 // Recent history (from cutoff until now)
-                "SINCE_WEEK", AutoClearPreferences.INTERVAL_WEEKLY -> {
+                "SINCE_WEEK" -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_WEEKLY)?.let { logDao.deleteSince(it) }
                 }
-                "SINCE_MONTH", AutoClearPreferences.INTERVAL_MONTHLY -> {
+                "SINCE_MONTH" -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_MONTHLY)?.let { logDao.deleteSince(it) }
                 }
-                "SINCE_THREE_MONTHS", AutoClearPreferences.INTERVAL_THREE_MONTHS -> {
+                "SINCE_THREE_MONTHS" -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_THREE_MONTHS)?.let { logDao.deleteSince(it) }
                 }
-                "SINCE_FIVE_MONTHS", AutoClearPreferences.INTERVAL_FIVE_MONTHS -> {
+                "SINCE_FIVE_MONTHS" -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_FIVE_MONTHS)?.let { logDao.deleteSince(it) }
                 }
-                "SINCE_YEAR", AutoClearPreferences.INTERVAL_YEARLY -> {
+                "SINCE_YEAR" -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_YEARLY)?.let { logDao.deleteSince(it) }
                 }
 
                 // Older history (older than cutoff)
-                "OLDER_WEEK" -> {
+                "OLDER_WEEK", AutoClearPreferences.INTERVAL_WEEKLY -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_WEEKLY)?.let { logDao.deleteOlderThan(it) }
                 }
-                "OLDER_MONTH" -> {
+                "OLDER_MONTH", AutoClearPreferences.INTERVAL_MONTHLY -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_MONTHLY)?.let { logDao.deleteOlderThan(it) }
                 }
-                "OLDER_THREE_MONTHS" -> {
+                "OLDER_THREE_MONTHS", AutoClearPreferences.INTERVAL_THREE_MONTHS -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_THREE_MONTHS)?.let { logDao.deleteOlderThan(it) }
                 }
-                "OLDER_FIVE_MONTHS" -> {
+                "OLDER_FIVE_MONTHS", AutoClearPreferences.INTERVAL_FIVE_MONTHS -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_FIVE_MONTHS)?.let { logDao.deleteOlderThan(it) }
                 }
-                "OLDER_YEAR" -> {
+                "OLDER_YEAR", AutoClearPreferences.INTERVAL_YEARLY -> {
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_YEARLY)?.let { logDao.deleteOlderThan(it) }
                 }
 
