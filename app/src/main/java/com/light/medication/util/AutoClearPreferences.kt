@@ -50,7 +50,7 @@ object AutoClearPreferences {
             ).build()
             workManager.enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+                ExistingPeriodicWorkPolicy.KEEP,
                 cleanupRequest,
             )
         }
@@ -58,11 +58,11 @@ object AutoClearPreferences {
 
     fun getCutoffTimestamp(interval: String, now: ZonedDateTime = ZonedDateTime.now()): Long? {
         val cutoff = when (interval) {
-            INTERVAL_WEEKLY -> now.minusWeeks(1)
-            INTERVAL_MONTHLY -> now.minusMonths(1)
-            INTERVAL_THREE_MONTHS -> now.minusMonths(3)
-            INTERVAL_FIVE_MONTHS -> now.minusMonths(5)
-            INTERVAL_YEARLY -> now.minusYears(1)
+            INTERVAL_WEEKLY, "OLDER_WEEK", "SINCE_WEEK" -> now.minusWeeks(1)
+            INTERVAL_MONTHLY, "OLDER_MONTH", "SINCE_MONTH" -> now.minusMonths(1)
+            INTERVAL_THREE_MONTHS, "OLDER_THREE_MONTHS", "SINCE_THREE_MONTHS" -> now.minusMonths(3)
+            INTERVAL_FIVE_MONTHS, "OLDER_FIVE_MONTHS", "SINCE_FIVE_MONTHS" -> now.minusMonths(5)
+            INTERVAL_YEARLY, "OLDER_YEAR", "SINCE_YEAR" -> now.minusYears(1)
             else -> null
         }
         return cutoff?.toInstant()?.toEpochMilli()

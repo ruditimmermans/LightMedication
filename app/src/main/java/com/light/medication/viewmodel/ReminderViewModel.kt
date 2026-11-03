@@ -208,7 +208,7 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
                     AutoClearPreferences.getCutoffTimestamp(AutoClearPreferences.INTERVAL_YEARLY)?.let { logDao.deleteOlderThan(it) }
                 }
 
-                else -> logDao.deleteAll()
+                else -> { /* Do nothing for unknown options */ }
             }
         }
     }
@@ -221,8 +221,6 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
                 val cutoff = AutoClearPreferences.getCutoffTimestamp(interval)
                 if (cutoff != null) {
                     logDao.deleteOlderThan(cutoff)
-                } else {
-                    logDao.deleteAll()
                 }
             }
         }

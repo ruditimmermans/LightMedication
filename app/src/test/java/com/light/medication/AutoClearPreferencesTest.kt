@@ -57,4 +57,13 @@ class AutoClearPreferencesTest {
         val expected = fixedNow.minusYears(1).toInstant().toEpochMilli()
         assertEquals(expected, cutoff)
     }
+
+    @Test
+    fun testCutoffTimestamp_Aliases() {
+        val cutoffOlderWeek = AutoClearPreferences.getCutoffTimestamp("OLDER_WEEK", fixedNow)
+        val cutoffSinceWeek = AutoClearPreferences.getCutoffTimestamp("SINCE_WEEK", fixedNow)
+        val expectedWeek = fixedNow.minusWeeks(1).toInstant().toEpochMilli()
+        assertEquals(expectedWeek, cutoffOlderWeek)
+        assertEquals(expectedWeek, cutoffSinceWeek)
+    }
 }
