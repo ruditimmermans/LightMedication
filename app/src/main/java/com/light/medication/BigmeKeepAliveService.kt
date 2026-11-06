@@ -58,10 +58,44 @@ class BigmeKeepAliveService : Service() {
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         if (BigmePreferences.isBigmeModeEnabled(this)) {
-            val launchIntent = Intent(applicationContext, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-            }
-            applicationContext.startActivity(launchIntent)
+            BigmePreferences.startKeepAliveService(applicationContext)
+            scheduleServiceRestart(applicationContext)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (BigmePreferences.isBigmeModeEnabled(this)) {
+            scheduleServiceRestart(applicationContext)
+        }
+    }
+
+    private fun scheduleServiceRestart(context: Context) {
+        val intent = Intent(context, BigmeKeepAliveService::class.java)
+        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            PendingIntent.getForegroundService(
+                context,
+                1,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            PendingIntent.getService(
+                context,
+                1,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+        try {
+            alarmManager.set(
+                android.app.AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + 1000,
+                pendingIntent
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

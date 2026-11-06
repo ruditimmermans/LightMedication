@@ -30,10 +30,14 @@ class ReminderReceiver : BroadcastReceiver() {
             if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
                 if (com.light.medication.util.BigmePreferences.isBigmeModeEnabled(context)) {
                     com.light.medication.util.BigmePreferences.startKeepAliveService(context)
-                    val activityIntent = Intent(context, MainActivity::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                    try {
+                        val activityIntent = Intent(context, MainActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                        }
+                        context.startActivity(activityIntent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                    context.startActivity(activityIntent)
                 }
             }
             return
