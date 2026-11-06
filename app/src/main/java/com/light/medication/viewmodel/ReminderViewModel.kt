@@ -22,6 +22,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 import com.light.medication.util.ThemePreferences
+import com.light.medication.util.BigmePreferences
 
 class ReminderViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.getDatabase(application)
@@ -36,8 +37,16 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
     private val _appTheme = MutableStateFlow(ThemePreferences.getTheme(application))
     val appTheme: StateFlow<String> = _appTheme.asStateFlow()
 
+    private val _bigmeModeEnabled = MutableStateFlow(BigmePreferences.isBigmeModeEnabled(application))
+    val bigmeModeEnabled: StateFlow<Boolean> = _bigmeModeEnabled.asStateFlow()
+
     init {
         autoClearLogs()
+    }
+
+    fun setBigmeModeEnabled(enabled: Boolean) {
+        BigmePreferences.setBigmeModeEnabled(getApplication(), enabled)
+        _bigmeModeEnabled.value = enabled
     }
 
     fun setAppTheme(theme: String) {

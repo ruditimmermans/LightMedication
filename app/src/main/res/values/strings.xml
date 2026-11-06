@@ -91,4 +91,11 @@
     <string name="theme_light">Light</string>
     <string name="theme_system">System Default</string>
     <string name="theme_eink_description">High-contrast black text on white background optimized for e-paper displays</string>
+    <string name="bigme_mode_title">Bigme HiBreak Pro Options</string>
+    <string name="bigme_mode_label">Auto-start &amp; Keep Active in Background</string>
+    <string name="bigme_mode_description">Ensures MediLight launches automatically when your device starts or restarts, and keeps the app running active in the background even after closing it.</string>
+    <string name="bigme_service_channel_name">Bigme Background Keep-Alive</string>
+    <string name="bigme_service_channel_description">Keeps MediLight active in the background for Bigme HiBreak Pro</string>
+    <string name="bigme_service_notification_title">MediLight Active in Background</string>
+    <string name="bigme_service_notification_content">Running in background for Bigme HiBreak Pro</string>
 </resources>

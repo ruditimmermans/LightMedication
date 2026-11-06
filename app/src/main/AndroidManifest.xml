@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".MediLightApp"
@@ -32,6 +35,15 @@
             android:name=".ActionReceiver"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".BigmeKeepAliveService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keep medication reminder app active in background and auto-start on Bigme Hibreak Pro" />
+        </service>
         <activity
             android:name=".MainActivity"
             android:exported="true"
