@@ -82,4 +82,11 @@
     <string name="auto_clear_yearly">Jaarlijks</string>
     <string name="donate_button">Doneren via Ko-Fi</string>
     <string name="kofi_url" translatable="false">https://ko-fi.com/ruditimmermans</string>
+    <string name="settings_title">Instellingen</string>
+    <string name="theme_title">App thema</string>
+    <string name="theme_dark">Donker (Zwart &amp; Wit)</string>
+    <string name="theme_eink">E-Ink</string>
+    <string name="theme_light">Licht</string>
+    <string name="theme_system">Systeemstandaard</string>
+    <string name="theme_eink_description">Zwarte tekst met hoog contrast op een witte achtergrond, geoptimaliseerd voor e-paper schermen</string>
 </resources>

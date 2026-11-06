@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.accessibility.AccessibilityNodeInfo
@@ -35,9 +36,11 @@ class LightToggle @JvmOverloads constructor(
         isClickable = true
         isFocusable = true
 
+        val defaultColor = resolvePrimaryTextColor(context)
+
         addView(mark)
         label.apply {
-            setTextColor(context.getColor(R.color.white))
+            setTextColor(defaultColor)
             attrs?.let {
                 val a = context.obtainStyledAttributes(it, intArrayOf(android.R.attr.text))
                 if (a.hasValue(0)) {
@@ -48,12 +51,21 @@ class LightToggle @JvmOverloads constructor(
         }
         addView(label, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
 
+        mark.setMarkColor(defaultColor)
         updateStyles()
 
         setOnClickListener {
             mark.checked = !mark.checked
             listener?.invoke(mark.checked)
         }
+    }
+
+    private fun resolvePrimaryTextColor(context: Context): Int {
+        val typedValue = TypedValue()
+        if (context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)) {
+            return typedValue.data
+        }
+        return context.getColor(R.color.white)
     }
 
     private fun updateStyles() {
@@ -69,6 +81,11 @@ class LightToggle @JvmOverloads constructor(
     }
 
     fun setText(text: CharSequence) { label.text = text }
+
+    fun setToggleColor(color: Int) {
+        label.setTextColor(color)
+        mark.setMarkColor(color)
+    }
 
     /** Fires only on user taps, never on programmatic [isChecked] changes. */
     fun setOnCheckedChangeListener(onChange: (Boolean) -> Unit) { listener = onChange }
@@ -95,6 +112,11 @@ class LightToggle @JvmOverloads constructor(
         private var border = 3f * density
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = context.getColor(R.color.white)
+        }
+
+        fun setMarkColor(color: Int) {
+            paint.color = color
+            invalidate()
         }
 
         var isCompact = false

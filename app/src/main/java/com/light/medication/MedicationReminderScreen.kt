@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -61,6 +63,7 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
     val context = LocalContext.current
     var showAboutScreen by remember { mutableStateOf(false) }
     var showLogScreen by remember { mutableStateOf(false) }
+    var showSettingsScreen by remember { mutableStateOf(false) }
     var reminderToEdit by remember { mutableStateOf<Reminder?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
 
@@ -110,6 +113,11 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
             onBack = { showLogScreen = false },
             viewModel = viewModel
         )
+    } else if (showSettingsScreen) {
+        SettingsScreen(
+            onBack = { showSettingsScreen = false },
+            viewModel = viewModel
+        )
     } else if (showAboutScreen) {
         AboutScreen(
             onBack = { showAboutScreen = false },
@@ -125,6 +133,9 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
                     actions = {
                         IconButton(onClick = { showLogScreen = true }) {
                             Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.log_title))
+                        }
+                        IconButton(onClick = { showSettingsScreen = true }) {
+                            Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings_title))
                         }
                         IconButton(onClick = { showAboutScreen = true }) {
                             Icon(Icons.Default.Info, contentDescription = stringResource(R.string.about_button))
@@ -368,6 +379,7 @@ fun ReminderItem(
     onTake: (Reminder) -> Unit,
     compact: Boolean = false
 ) {
+    val toggleColor = MaterialTheme.colorScheme.onSurface.toArgb()
     Card(
         modifier = Modifier.fillMaxWidth(),
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
@@ -389,6 +401,7 @@ fun ReminderItem(
                         update = { view ->
                             view.isCompact = compact
                             view.isChecked = reminder.isEnabled
+                            view.setToggleColor(toggleColor)
                             val takenToday = TimeUtils.isTakenToday(reminder.lastTakenTimestamp)
                             view.setText(if (takenToday) "✓ ${reminder.medicationName}" else reminder.medicationName)
                         },

@@ -21,6 +21,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+import com.light.medication.util.ThemePreferences
+
 class ReminderViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.getDatabase(application)
     private val reminderDao = db.reminderDao()
@@ -31,8 +33,16 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
     private val _autoClearInterval = MutableStateFlow(AutoClearPreferences.getAutoClearInterval(application))
     val autoClearInterval: StateFlow<String> = _autoClearInterval.asStateFlow()
 
+    private val _appTheme = MutableStateFlow(ThemePreferences.getTheme(application))
+    val appTheme: StateFlow<String> = _appTheme.asStateFlow()
+
     init {
         autoClearLogs()
+    }
+
+    fun setAppTheme(theme: String) {
+        ThemePreferences.setTheme(getApplication(), theme)
+        _appTheme.value = theme
     }
 
     fun setAutoClearInterval(interval: String) {

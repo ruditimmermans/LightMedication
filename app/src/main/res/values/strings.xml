@@ -84,4 +84,11 @@
     <string name="auto_clear_yearly">Yearly</string>
     <string name="donate_button">Donate on Ko-Fi</string>
     <string name="kofi_url" translatable="false">https://ko-fi.com/ruditimmermans</string>
+    <string name="settings_title">Settings</string>
+    <string name="theme_title">App Theme</string>
+    <string name="theme_dark">Dark (Black &amp; White)</string>
+    <string name="theme_eink">E-Ink</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_system">System Default</string>
+    <string name="theme_eink_description">High-contrast black text on white background optimized for e-paper displays</string>
 </resources>
