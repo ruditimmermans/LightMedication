@@ -9,7 +9,6 @@ object ThemePreferences {
     private const val KEY_THEME = "app_theme"
 
     const val THEME_DARK = "DARK"
-    const val THEME_EINK = "EINK"
     const val THEME_LIGHT = "LIGHT"
     const val THEME_SYSTEM = "SYSTEM"
 

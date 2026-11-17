@@ -35,34 +35,6 @@ val DarkColorScheme = darkColorScheme(
     scrim = Black
 )
 
-val EInkColorScheme = lightColorScheme(
-    primary = Black,
-    onPrimary = White,
-    primaryContainer = White,
-    onPrimaryContainer = Black,
-    secondary = Black,
-    onSecondary = White,
-    secondaryContainer = White,
-    onSecondaryContainer = Black,
-    tertiary = Black,
-    onTertiary = White,
-    tertiaryContainer = White,
-    onTertiaryContainer = Black,
-    background = White,
-    onBackground = Black,
-    surface = White,
-    onSurface = Black,
-    surfaceVariant = White,
-    onSurfaceVariant = Black,
-    error = Black,
-    onError = White,
-    errorContainer = White,
-    onErrorContainer = Black,
-    outline = Black,
-    outlineVariant = DarkGray,
-    scrim = White
-)
-
 val LightColorScheme = lightColorScheme(
     primary = Black,
     onPrimary = White,
@@ -98,9 +70,8 @@ fun LIghtMedicationTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when (themeSetting) {
-        ThemePreferences.THEME_EINK -> EInkColorScheme
         ThemePreferences.THEME_LIGHT -> LightColorScheme
-        ThemePreferences.THEME_SYSTEM -> if (darkTheme) DarkColorScheme else EInkColorScheme
+        ThemePreferences.THEME_SYSTEM -> if (darkTheme) DarkColorScheme else LightColorScheme
         else -> DarkColorScheme
     }
 

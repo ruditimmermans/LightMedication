@@ -85,15 +85,6 @@
     <string name="settings_title">Instellingen</string>
     <string name="theme_title">App thema</string>
     <string name="theme_dark">Donker (Zwart &amp; Wit)</string>
-    <string name="theme_eink">E-Ink</string>
     <string name="theme_light">Licht</string>
     <string name="theme_system">Systeemstandaard</string>
-    <string name="theme_eink_description">Zwarte tekst met hoog contrast op een witte achtergrond, geoptimaliseerd voor e-paper schermen</string>
-    <string name="bigme_mode_title">Bigme HiBreak Pro-opties</string>
-    <string name="bigme_mode_label">Automatisch starten &amp; op achtergrond actief houden</string>
-    <string name="bigme_mode_description">Zorgt ervoor dat MediLight automatisch start wanneer het apparaat opstart of herstart, en houdt de app actief op de achtergrond, zelfs na het sluiten.</string>
-    <string name="bigme_service_channel_name">Bigme achtergrond-actief houden</string>
-    <string name="bigme_service_channel_description">Houdt MediLight actief op de achtergrond voor Bigme HiBreak Pro</string>
-    <string name="bigme_service_notification_title">MediLight actief op achtergrond</string>
-    <string name="bigme_service_notification_content">Actief op achtergrond voor Bigme HiBreak Pro</string>
 </resources>
