@@ -10,6 +10,114 @@ import android.view.View
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+@Composable
+fun LightToggle(
+    text: String,
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    isCompact: Boolean = false,
+    color: Color = MaterialTheme.colorScheme.onSurface,
+    enabled: Boolean = true
+) {
+    val alpha = if (enabled) 1f else 0.4f
+    Row(
+        modifier = modifier
+            .defaultMinSize(minHeight = if (isCompact) 44.dp else 48.dp)
+            .alpha(alpha)
+            .toggleable(
+                value = isChecked,
+                enabled = enabled,
+                role = Role.Switch,
+                onValueChange = onCheckedChange
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ToggleMarkCanvas(
+            isChecked = isChecked,
+            isCompact = isCompact,
+            color = color,
+            modifier = Modifier.padding(end = if (isCompact) 12.dp else 18.dp)
+        )
+        Text(
+            text = text,
+            color = color,
+            fontSize = if (isCompact) 16.sp else 20.sp,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun ToggleMarkCanvas(
+    isChecked: Boolean,
+    isCompact: Boolean,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    val circleDp = if (isCompact) 10.dp else 13.dp
+    val lineWidthDp = if (isCompact) 14.dp else 19.dp
+    val lineHeightDp = if (isCompact) 2.5.dp else 3.dp
+    val borderDp = if (isCompact) 2.5.dp else 3.dp
+
+    val totalWidth = lineWidthDp + circleDp
+    val totalHeight = circleDp
+
+    Canvas(modifier = modifier.size(width = totalWidth, height = totalHeight)) {
+        val circlePx = circleDp.toPx()
+        val lineWidthPx = lineWidthDp.toPx()
+        val lineHeightPx = lineHeightDp.toPx()
+        val borderPx = borderDp.toPx()
+
+        val cy = size.height / 2f
+        val r = circlePx / 2f
+
+        if (isChecked) {
+            drawRect(
+                color = color,
+                topLeft = Offset(0f, cy - lineHeightPx / 2f),
+                size = Size(lineWidthPx, lineHeightPx)
+            )
+            drawCircle(
+                color = color,
+                radius = r,
+                center = Offset(lineWidthPx + r, cy)
+            )
+        } else {
+            drawCircle(
+                color = color,
+                radius = r - borderPx / 2f,
+                center = Offset(r, cy),
+                style = Stroke(width = borderPx)
+            )
+            drawRect(
+                color = color,
+                topLeft = Offset(circlePx, cy - lineHeightPx / 2f),
+                size = Size(lineWidthPx, lineHeightPx)
+            )
+        }
+    }
+}
 
 class LightToggle @JvmOverloads constructor(
     context: Context,
@@ -87,10 +195,8 @@ class LightToggle @JvmOverloads constructor(
         mark.setMarkColor(color)
     }
 
-    /** Fires only on user taps, never on programmatic [isChecked] changes. */
     fun setOnCheckedChangeListener(onChange: (Boolean) -> Unit) { listener = onChange }
 
-    /** Dim and stop responding to taps while disabled. */
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
         alpha = if (enabled) 1f else 0.4f
@@ -103,7 +209,6 @@ class LightToggle @JvmOverloads constructor(
         info.isChecked = isChecked
     }
 
-    /** The line-and-dot mark. Its width is constant across states so the row never shifts. */
     private class ToggleMark(context: Context) : View(context) {
         private val density = resources.displayMetrics.density
         private var circle = 13f * density
@@ -145,12 +250,10 @@ class LightToggle @JvmOverloads constructor(
             val cy = height / 2f
             val r = circle / 2f
             if (checked) {
-                // line on the left, filled dot on the right
                 paint.style = Paint.Style.FILL
                 canvas.drawRect(0f, cy - lineHeight / 2, lineWidth, cy + lineHeight / 2, paint)
                 canvas.drawCircle(lineWidth + r, cy, r, paint)
             } else {
-                // hollow dot on the left, line on the right
                 paint.style = Paint.Style.STROKE
                 paint.strokeWidth = border
                 canvas.drawCircle(r, cy, r - border / 2, paint)

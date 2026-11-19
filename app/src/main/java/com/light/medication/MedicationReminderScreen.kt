@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,7 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -83,8 +81,12 @@ fun MedicationReminderScreen(viewModel: ReminderViewModel = viewModel()) {
 
     val reminders by viewModel.allReminders.collectAsState()
     val configuration = LocalConfiguration.current
-    val isWideScreen = configuration.screenWidthDp > 600 || configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-    val isBoxyScreen = !isWideScreen && (configuration.screenWidthDp.toFloat() / configuration.screenHeightDp.toFloat() > 0.75f)
+    val isWideScreen = remember(configuration) {
+        configuration.screenWidthDp > 600 || configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    }
+    val isBoxyScreen = remember(configuration, isWideScreen) {
+        !isWideScreen && (configuration.screenWidthDp.toFloat() / configuration.screenHeightDp.toFloat() > 0.75f)
+    }
 
     val backupLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
@@ -379,10 +381,16 @@ fun ReminderItem(
     onTake: (Reminder) -> Unit,
     compact: Boolean = false
 ) {
-    val toggleColor = MaterialTheme.colorScheme.onSurface.toArgb()
+    val takenToday = remember(reminder.lastTakenTimestamp) {
+        TimeUtils.isTakenToday(reminder.lastTakenTimestamp)
+    }
+    val displayText = remember(reminder.medicationName, takenToday) {
+        if (takenToday) "✓ ${reminder.medicationName}" else reminder.medicationName
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(if (compact) 10.dp else 16.dp)) {
@@ -391,23 +399,13 @@ fun ReminderItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    AndroidView(
-                        factory = { context ->
-                            LightToggle(context).apply {
-                                setOnCheckedChangeListener { onToggle(reminder) }
-                            }
-                        },
-                        update = { view ->
-                            view.isCompact = compact
-                            view.isChecked = reminder.isEnabled
-                            view.setToggleColor(toggleColor)
-                            val takenToday = TimeUtils.isTakenToday(reminder.lastTakenTimestamp)
-                            view.setText(if (takenToday) "✓ ${reminder.medicationName}" else reminder.medicationName)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                LightToggle(
+                    text = displayText,
+                    isChecked = reminder.isEnabled,
+                    onCheckedChange = { onToggle(reminder) },
+                    isCompact = compact,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
             
             Spacer(modifier = Modifier.height(8.dp))

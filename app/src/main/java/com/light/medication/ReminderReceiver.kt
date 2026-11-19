@@ -37,15 +37,12 @@ class ReminderReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val db = AppDatabase.getDatabase(context)
-                val reminders = db.reminderDao().getAllReminders().first()
-                val reminder = reminders.find { it.id == id }
+                val reminder = db.reminderDao().getReminderById(id)
                 
                 if (reminder != null && reminder.isEnabled) {
                     if (shouldShowNotification(reminder)) {
                         showNotification(context, reminder.medicationName, reminder.pillCount, reminder.id)
                     }
-                    
-                    AutoClearPreferences.performAutoClear(context)
 
                     // Always reschedule for the next occurrence
                     val scheduler = ReminderScheduler(context)
@@ -105,7 +102,6 @@ class ReminderReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 AutoClearPreferences.scheduleAutoClearWork(context)
-                AutoClearPreferences.performAutoClear(context)
 
                 val reminders = db.reminderDao().getAllReminders().first()
                 reminders.filter { it.isEnabled }.forEach { reminder ->

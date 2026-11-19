@@ -8,7 +8,6 @@ import com.light.medication.data.AppDatabase
 import com.light.medication.data.MedicationLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ActionReceiver : BroadcastReceiver() {
@@ -23,8 +22,7 @@ class ActionReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val db = AppDatabase.getDatabase(context)
-                val reminders = db.reminderDao().getAllReminders().first()
-                val reminder = reminders.find { it.id == reminderId }
+                val reminder = db.reminderDao().getReminderById(reminderId)
                 
                 if (reminder != null) {
                     val timestamp = System.currentTimeMillis()
@@ -44,8 +42,6 @@ class ActionReceiver : BroadcastReceiver() {
                         timestamp = timestamp,
                         action = action
                     ))
-
-                    com.light.medication.util.AutoClearPreferences.performAutoClear(context)
                     
                     // Reschedule for the next occurrence
                     val scheduler = ReminderScheduler(context)

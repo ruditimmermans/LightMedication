@@ -29,8 +29,10 @@ data class GitHubAsset(
 )
 
 class AppUpdater(private val context: Context) {
-    private val client = OkHttpClient()
-    private val json = Json { ignoreUnknownKeys = true }
+    companion object {
+        private val client by lazy { OkHttpClient() }
+        private val json by lazy { Json { ignoreUnknownKeys = true } }
+    }
     private val repoUrl = "https://api.github.com/repos/ruditimmermans/LightMedication/releases/latest"
 
     suspend fun checkForUpdate(): GitHubRelease? = withContext(Dispatchers.IO) {

@@ -36,10 +36,6 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
     private val _appTheme = MutableStateFlow(ThemePreferences.getTheme(application))
     val appTheme: StateFlow<String> = _appTheme.asStateFlow()
 
-    init {
-        autoClearLogs()
-    }
-
     fun setAppTheme(theme: String) {
         ThemePreferences.setTheme(getApplication(), theme)
         _appTheme.value = theme
@@ -134,8 +130,6 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
                 action = "Taken"
             ))
 
-            autoClearLogs()
-            
             // Cancel notification if it's currently showing
             val notificationManager = getApplication<Application>().getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
             notificationManager.cancel(reminder.id)
@@ -159,8 +153,6 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
                 timestamp = timestamp,
                 action = "Skipped"
             ))
-
-            autoClearLogs()
 
             // Cancel notification if it's currently showing
             val notificationManager = getApplication<Application>().getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager

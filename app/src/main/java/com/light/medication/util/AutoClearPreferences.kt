@@ -3,6 +3,7 @@ package com.light.medication.util
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -45,9 +46,12 @@ object AutoClearPreferences {
         if (interval == INTERVAL_OFF) {
             workManager.cancelUniqueWork(WORK_NAME)
         } else {
+            val constraints = Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .build()
             val cleanupRequest = PeriodicWorkRequestBuilder<LogCleanupWorker>(
                 1, TimeUnit.DAYS,
-            ).build()
+            ).setConstraints(constraints).build()
             workManager.enqueueUniquePeriodicWork(
                 WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
